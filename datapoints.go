@@ -83,6 +83,7 @@ func (d *DatapointCollector) Datapoints(reset bool, cb func(name string,
 }
 
 func (self *MonitorGroup) Data(name string, val ...float64) {
+    name = SanitizeName(name)
     monitor, err := self.collectors.Get(name, func(_ interface{}) (interface{}, error) {
         return NewDatapointCollector(*collectionFraction, *collectionMax), nil
     })

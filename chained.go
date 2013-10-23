@@ -33,6 +33,7 @@ func (c *ChainedMonitor) Stats(cb func(name string, val float64)) {
 }
 
 func (self *MonitorGroup) Chain(name string, other Monitor) {
+    name = SanitizeName(name)
     monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
         return NewChainedMonitor(), nil
     })

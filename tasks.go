@@ -5,6 +5,7 @@ package client
 import (
     "flag"
     "fmt"
+    "sort"
     "sync"
     "time"
 
@@ -56,25 +57,31 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
     total_started := t.total_started
     total_completed := t.total_completed
     success := t.success
-    errors := make(map[string]uint64, len(t.errors))
+    error_counts := make(map[string]uint64, len(t.errors))
     for error, count := range t.errors {
-        errors[error] = count
+        error_counts[error] = count
     }
     t.mtx.Unlock()
 
-    cb("current", float64(current))
-    cb("highwater", float64(highwater))
-    cb("total_started", float64(total_started))
-    cb("total_completed", float64(total_completed))
-    cb("success", float64(success))
-    for error, count := range errors {
-        cb(fmt.Sprintf("error_%s", error), float64(count))
+    errors := make([]string, 0, len(error_counts))
+    for error, _ := range error_counts {
+        errors = append(errors, error)
     }
+    sort.Strings(errors)
+
+    cb("current", float64(current))
+    for _, error := range errors {
+        cb(fmt.Sprintf("error_%s", error), float64(error_counts[error]))
+    }
+    cb("highwater", float64(highwater))
+    cb("success", float64(success))
     t.timing.Stats(func(name string, val float64) {
         if name != "count" {
             cb(fmt.Sprintf("time_%s", name), val)
         }
     })
+    cb("total_completed", float64(total_completed))
+    cb("total_started", float64(total_started))
 }
 
 func (c *TaskCtx) Finish(err error) {
@@ -109,6 +116,7 @@ func (self *MonitorGroup) Wrap() func(error) {
 }
 
 func (self *MonitorGroup) WrapNamed(name string) func(error) {
+    name = SanitizeName(name)
     monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
         return NewTaskMonitor(), nil
     })

@@ -31,6 +31,7 @@ func (e *EventMonitor) Stats(cb func(name string, val float64)) {
 }
 
 func (self *MonitorGroup) Event(name string) {
+    name = SanitizeName(name)
     monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
         return NewEventMonitor(), nil
     })

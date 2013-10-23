@@ -48,14 +48,15 @@ func (v *ValueMonitor) Stats(cb func(name string, val float64)) {
     v.mtx.Unlock()
 
     cb("count", float64(count))
-    cb("sum", sum)
-    cb("sum_squared", sum_squared)
-    cb("recent", recent)
     cb("max", max)
     cb("min", min)
+    cb("recent", recent)
+    cb("sum", sum)
+    cb("sum_squared", sum_squared)
 }
 
 func (self *MonitorGroup) Val(name string, val float64) {
+    name = SanitizeName(name)
     monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
         return NewValueMonitor(), nil
     })
