@@ -88,11 +88,7 @@ func (c *TaskCtx) Finish(err error) {
     duration := time.Since(c.start)
     var error_name string
     if err != nil {
-        if errors.HierarchicalError.Contains(err) {
-            error_name = errors.GetClass(err).String()
-        } else {
-            error_name = err.Error()
-        }
+        error_name = errors.GetClass(err).String()
         if len(error_name) > *maxErrorLength {
             error_name = error_name[:*maxErrorLength]
         }
