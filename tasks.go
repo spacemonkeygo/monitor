@@ -84,9 +84,13 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
     cb("total_started", float64(total_started))
 }
 
-func (c *TaskCtx) Finish(err error) {
+func (c *TaskCtx) Finish(err_ref *error) {
     duration := time.Since(c.start)
     var error_name string
+    var err error
+    if err_ref != nil {
+        err = *err_ref
+    }
     if err != nil {
         error_name = errors.GetClass(err).String()
         if len(error_name) > *maxErrorLength {
@@ -107,24 +111,24 @@ func (c *TaskCtx) Finish(err error) {
     c.monitor.timing.Add(duration.Seconds())
 }
 
-func (self *MonitorGroup) Wrap() func(error) {
-    return self.WrapNamed(CallerName())
+func (self *MonitorGroup) Task() func(*error) {
+    return self.TaskNamed(CallerName())
 }
 
-func (self *MonitorGroup) WrapNamed(name string) func(error) {
+func (self *MonitorGroup) TaskNamed(name string) func(*error) {
     name = SanitizeName(name)
     monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
         return NewTaskMonitor(), nil
     })
     if err != nil {
         handleError(err)
-        return func(error) {}
+        return func(*error) {}
     }
     task_monitor, ok := monitor.(*TaskMonitor)
     if !ok {
         handleError(errors.ProgrammerError.New(
             "monitor already exists with different type for name %s", name))
-        return func(error) {}
+        return func(*error) {}
     }
     ctx := task_monitor.Start()
     return ctx.Finish

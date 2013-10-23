@@ -40,7 +40,7 @@ func (s *MonitorStore) Datapoints(reset bool, cb func(name string,
     }
 }
 
-func (s *MonitorStore) GetMonitors(group_name string) *MonitorGroup {
+func (s *MonitorStore) GetMonitorsNamed(group_name string) *MonitorGroup {
     group_name = SanitizeName(group_name)
     cached, err := s.groups.Get(group_name, func(_ interface{}) (interface{}, error) {
         return NewMonitorGroup(group_name), nil
@@ -58,4 +58,8 @@ func (s *MonitorStore) GetMonitors(group_name string) *MonitorGroup {
     }
     return group
 
+}
+
+func (s *MonitorStore) GetMonitors() *MonitorGroup {
+    return s.GetMonitorsNamed(CallerName())
 }
