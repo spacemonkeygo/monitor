@@ -9,21 +9,30 @@ import (
 )
 
 type ChainedMonitor struct {
-    mtx sync.Mutex
-    cb  func() float64
+    mtx   sync.Mutex
+    other Monitor
 }
 
 func NewChainedMonitor() *ChainedMonitor {
     return &ChainedMonitor{}
 }
 
-func (c *ChainedMonitor) Set(cb func() float64) {
+func (c *ChainedMonitor) Set(other Monitor) {
     c.mtx.Lock()
-    c.cb = cb
+    c.other = other
     c.mtx.Unlock()
 }
 
-func (self *MonitorGroup) Chain(name string, val func() float64) {
+func (c *ChainedMonitor) Stats(cb func(name string, val float64)) {
+    c.mtx.Lock()
+    other := c.other
+    c.mtx.Unlock()
+    if other != nil {
+        other.Stats(cb)
+    }
+}
+
+func (self *MonitorGroup) Chain(name string, other Monitor) {
     monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
         return NewChainedMonitor(), nil
     })
@@ -37,5 +46,5 @@ func (self *MonitorGroup) Chain(name string, val func() float64) {
             "monitor already exists with different type for name %s", name))
         return
     }
-    chain_monitor.Set(val)
+    chain_monitor.Set(other)
 }

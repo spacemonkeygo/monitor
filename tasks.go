@@ -4,6 +4,7 @@ package client
 
 import (
     "flag"
+    "fmt"
     "sync"
     "time"
 
@@ -46,6 +47,34 @@ func (t *TaskMonitor) Start() *TaskCtx {
     }
     t.mtx.Unlock()
     return &TaskCtx{start: time.Now(), monitor: t}
+}
+
+func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
+    t.mtx.Lock()
+    current := t.current
+    highwater := t.highwater
+    total_started := t.total_started
+    total_completed := t.total_completed
+    success := t.success
+    errors := make(map[string]uint64, len(t.errors))
+    for error, count := range t.errors {
+        errors[error] = count
+    }
+    t.mtx.Unlock()
+
+    cb("current", float64(current))
+    cb("highwater", float64(highwater))
+    cb("total_started", float64(total_started))
+    cb("total_completed", float64(total_completed))
+    cb("success", float64(success))
+    for error, count := range errors {
+        cb(fmt.Sprintf("error_%s", error), float64(count))
+    }
+    t.timing.Stats(func(name string, val float64) {
+        if name != "count" {
+            cb(fmt.Sprintf("time_%s", name), val)
+        }
+    })
 }
 
 func (c *TaskCtx) Finish(err error) {

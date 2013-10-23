@@ -23,6 +23,13 @@ func (e *EventMonitor) Add() {
     e.mtx.Unlock()
 }
 
+func (e *EventMonitor) Stats(cb func(name string, val float64)) {
+    e.mtx.Lock()
+    count := e.count
+    e.mtx.Unlock()
+    cb("count", float64(count))
+}
+
 func (self *MonitorGroup) Event(name string) {
     monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
         return NewEventMonitor(), nil

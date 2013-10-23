@@ -57,8 +57,33 @@ func (d *DatapointCollector) Add(val ...float64) {
     }
 }
 
+func (d *DatapointCollector) Datapoints(reset bool, cb func(name string,
+    data [][]float64, total uint64, clipped bool, fraction float64)) {
+
+    d.mtx.Lock()
+    total := d.total
+    clipped := d.clipped
+    fraction := d.collection_fraction
+    var data_out [][]float64
+    if reset {
+        data_out = d.dataset
+        d.dataset = nil
+        d.total = 0
+        d.clipped = false
+        d.considered_total = 0
+    } else {
+        data_out = make([][]float64, 0, len(d.dataset))
+        for _, row := range d.dataset {
+            data_out = append(data_out, row)
+        }
+    }
+    d.mtx.Unlock()
+
+    cb("data", data_out, total, clipped, fraction)
+}
+
 func (self *MonitorGroup) Data(name string, val ...float64) {
-    monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
+    monitor, err := self.collectors.Get(name, func(_ interface{}) (interface{}, error) {
         return NewDatapointCollector(*collectionFraction, *collectionMax), nil
     })
     if err != nil {

@@ -37,6 +37,24 @@ func (v *ValueMonitor) Add(val float64) {
     v.mtx.Unlock()
 }
 
+func (v *ValueMonitor) Stats(cb func(name string, val float64)) {
+    v.mtx.Lock()
+    count := v.count
+    sum := v.sum
+    sum_squared := v.sum_squared
+    recent := v.recent
+    max := v.max
+    min := v.min
+    v.mtx.Unlock()
+
+    cb("count", float64(count))
+    cb("sum", sum)
+    cb("sum_squared", sum_squared)
+    cb("recent", recent)
+    cb("max", max)
+    cb("min", min)
+}
+
 func (self *MonitorGroup) Val(name string, val float64) {
     monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
         return NewValueMonitor(), nil
