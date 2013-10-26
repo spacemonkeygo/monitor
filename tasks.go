@@ -118,6 +118,10 @@ func (self *MonitorGroup) Task() func(*error) {
     if idx >= 0 {
         caller_name = caller_name[idx+1:]
     }
+    idx = strings.Index(caller_name, ".")
+    if idx >= 0 {
+        caller_name = caller_name[idx+1:]
+    }
     return self.TaskNamed(caller_name)
 }
 

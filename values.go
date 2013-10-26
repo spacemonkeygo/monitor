@@ -47,6 +47,9 @@ func (v *ValueMonitor) Stats(cb func(name string, val float64)) {
     min := v.min
     v.mtx.Unlock()
 
+    if count > 0 {
+        cb("avg", sum/float64(count))
+    }
     cb("count", float64(count))
     cb("max", max)
     cb("min", min)
