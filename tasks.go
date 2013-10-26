@@ -6,6 +6,7 @@ import (
     "flag"
     "fmt"
     "sort"
+    "strings"
     "sync"
     "time"
 
@@ -112,7 +113,12 @@ func (c *TaskCtx) Finish(err_ref *error) {
 }
 
 func (self *MonitorGroup) Task() func(*error) {
-    return self.TaskNamed(CallerName())
+    caller_name := CallerName()
+    idx := strings.LastIndex(caller_name, "/")
+    if idx >= 0 {
+        caller_name = caller_name[idx+1:]
+    }
+    return self.TaskNamed(caller_name)
 }
 
 func (self *MonitorGroup) TaskNamed(name string) func(*error) {
