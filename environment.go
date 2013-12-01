@@ -39,4 +39,5 @@ type ProcessMonitor struct{}
 
 func (ProcessMonitor) Stats(cb func(name string, val float64)) {
     cb("uptime", time.Since(startTime).Seconds())
+    cb("control", 1)
 }
