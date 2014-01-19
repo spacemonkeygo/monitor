@@ -76,7 +76,7 @@ func MonitorStruct(data interface{}, cb func(name string, val float64)) {
 
 func MonitorMap(data map[string]float64, cb func(name string, val float64)) {
     names := make([]string, 0, len(data))
-    for name, _ := range data {
+    for name := range data {
         names = append(names, name)
     }
     sort.Strings(names)

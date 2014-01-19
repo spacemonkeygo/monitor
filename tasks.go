@@ -65,7 +65,7 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
     t.mtx.Unlock()
 
     errors := make([]string, 0, len(error_counts))
-    for error, _ := range error_counts {
+    for error := range error_counts {
         errors = append(errors, error)
     }
     sort.Strings(errors)
