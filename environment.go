@@ -4,11 +4,12 @@ package client
 
 import (
 	"runtime"
-	"time"
+
+	space_time "code.spacemonkey.com/go/space/time"
 )
 
 var (
-	startTime = time.Now()
+	startTime = space_time.Monotonic()
 )
 
 func (store *MonitorStore) RegisterEnvironment() {
@@ -38,6 +39,6 @@ func (MemoryMonitor) Stats(cb func(name string, val float64)) {
 type ProcessMonitor struct{}
 
 func (ProcessMonitor) Stats(cb func(name string, val float64)) {
-	cb("uptime", time.Since(startTime).Seconds())
+	cb("uptime", (space_time.Monotonic() - startTime).Seconds())
 	cb("control", 1)
 }

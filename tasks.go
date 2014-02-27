@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"code.spacemonkey.com/go/errors"
+	space_time "code.spacemonkey.com/go/space/time"
 )
 
 var (
@@ -36,7 +37,7 @@ func NewTaskMonitor() *TaskMonitor {
 }
 
 type TaskCtx struct {
-	start   time.Time
+	start   time.Duration
 	monitor *TaskMonitor
 }
 
@@ -48,7 +49,7 @@ func (t *TaskMonitor) Start() *TaskCtx {
 		t.highwater = t.current
 	}
 	t.mtx.Unlock()
-	return &TaskCtx{start: time.Now(), monitor: t}
+	return &TaskCtx{start: space_time.Monotonic(), monitor: t}
 }
 
 func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
@@ -86,7 +87,7 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
 }
 
 func (c *TaskCtx) Finish(err_ref *error) {
-	duration := time.Since(c.start)
+	duration := space_time.Monotonic() - c.start
 	var error_name string
 	var err error
 	if err_ref != nil {
