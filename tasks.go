@@ -89,14 +89,13 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
 	cb("total_started", float64(total_started))
 }
 
-func (c *TaskCtx) Finish(err_ref *error) {
+func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
 	duration := space_time.Monotonic() - c.start
 	var error_name string
 	var err error
 	if err_ref != nil {
 		err = *err_ref
 	}
-	rec := recover()
 	if rec != nil {
 		var ok bool
 		err, ok = rec.(error)
@@ -162,5 +161,5 @@ func (self *MonitorGroup) TaskNamed(name string) func(*error) {
 		return func(*error) {}
 	}
 	ctx := task_monitor.Start()
-	return ctx.Finish
+	return func(e *error) { ctx.Finish(e, recover()) }
 }
