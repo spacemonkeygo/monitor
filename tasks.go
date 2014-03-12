@@ -93,6 +93,14 @@ func (c *TaskCtx) Finish(err_ref *error) {
 	if err_ref != nil {
 		err = *err_ref
 	}
+	rec := recover()
+	if rec != nil {
+		var ok bool
+		err, ok = rec.(error)
+		if !ok {
+			err = errors.PanicError.New("%v", rec)
+		}
+	}
 	if err != nil {
 		error_name = errors.GetClass(err).String()
 		if len(error_name) > *maxErrorLength {
@@ -111,6 +119,12 @@ func (c *TaskCtx) Finish(err_ref *error) {
 	}
 	c.monitor.mtx.Unlock()
 	c.monitor.timing.Add(duration.Seconds())
+
+	// doh, we didn't actually want to stop the panic codepath.
+	// we have to repanic
+	if rec != nil {
+		panic(rec)
+	}
 }
 
 func (self *MonitorGroup) Task() func(*error) {
