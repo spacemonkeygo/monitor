@@ -28,6 +28,7 @@ type TaskMonitor struct {
 	success         uint64
 	timing          *ValueMonitor
 	errors          map[string]uint64
+	panics          uint64
 }
 
 func NewTaskMonitor() *TaskMonitor {
@@ -59,6 +60,7 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
 	total_started := t.total_started
 	total_completed := t.total_completed
 	success := t.success
+	panics := t.panics
 	error_counts := make(map[string]uint64, len(t.errors))
 	for error, count := range t.errors {
 		error_counts[error] = count
@@ -76,6 +78,7 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
 		cb(fmt.Sprintf("error_%s", error), float64(error_counts[error]))
 	}
 	cb("highwater", float64(highwater))
+	cb("panics", float64(panics))
 	cb("success", float64(success))
 	t.timing.Stats(func(name string, val float64) {
 		if name != "count" {
@@ -97,7 +100,7 @@ func (c *TaskCtx) Finish(err_ref *error) {
 	if rec != nil {
 		var ok bool
 		err, ok = rec.(error)
-		if !ok {
+		if !ok || err == nil {
 			err = errors.PanicError.New("%v", rec)
 		}
 	}
@@ -114,6 +117,9 @@ func (c *TaskCtx) Finish(err_ref *error) {
 	c.monitor.total_completed += 1
 	if err != nil {
 		c.monitor.errors[error_name] += 1
+		if rec != nil {
+			c.monitor.panics += 1
+		}
 	} else {
 		c.monitor.success += 1
 	}
