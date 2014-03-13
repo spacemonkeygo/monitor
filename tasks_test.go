@@ -12,14 +12,15 @@ func check(t *testing.T, mon Monitor, success, total, errors, panics float64) {
 	var found_errors float64
 	mon.Stats(func(name string, val float64) {
 		switch {
-		case name == "success" && val != success:
+		case name == "foo.bar.success" && val != success:
 			t.Errorf("unexpected success count: %f != %f", val, success)
-		case name == "total" && val != total:
+		case name == "foo.bar.total" && val != total:
 			t.Errorf("unexpected success count: %f != %f", val, total)
-		case name == "panics" && val != panics:
+		case name == "foo.bar.panics" && val != panics:
 			t.Errorf("unexpected panics count: %f != %f", val, panics)
-		case strings.HasPrefix(name, "error_"):
+		case strings.HasPrefix(name, "foo.bar.error_"):
 			found_errors += val
+		default:
 		}
 	})
 	if found_errors != errors {
@@ -30,17 +31,17 @@ func check(t *testing.T, mon Monitor, success, total, errors, panics float64) {
 func ignore([]byte) {}
 
 func TestTaskPanics(t *testing.T) {
-	mon := NewTaskMonitor()
+	mon := NewMonitorGroup("foo")
 	check(t, mon, 0, 0, 0, 0)
 
 	func() {
-		defer mon.Start().Finish(nil)
+		defer mon.TaskNamed("bar")(nil)
 	}()
 	check(t, mon, 1, 1, 0, 0)
 
 	func() {
 		var err error
-		defer mon.Start().Finish(&err)
+		defer mon.TaskNamed("bar")(&err)
 		err = io.EOF
 	}()
 	check(t, mon, 1, 2, 1, 0)
@@ -49,7 +50,7 @@ func TestTaskPanics(t *testing.T) {
 		defer func() { recover() }()
 		func() {
 			var list []byte
-			defer mon.Start().Finish(nil)
+			defer mon.TaskNamed("bar")(nil)
 			ignore(list[4:7])
 		}()
 	}()
@@ -59,7 +60,7 @@ func TestTaskPanics(t *testing.T) {
 		defer func() { recover() }()
 		func() {
 			var nilref *testing.T
-			defer mon.Start().Finish(nil)
+			defer mon.TaskNamed("bar")(nil)
 			nilref.Fatalf("this should fail")
 		}()
 	}()
@@ -68,14 +69,14 @@ func TestTaskPanics(t *testing.T) {
 	func() {
 		defer func() { recover() }()
 		func() {
-			defer mon.Start().Finish(nil)
+			defer mon.TaskNamed("bar")(nil)
 			panic("waaah")
 		}()
 	}()
 	check(t, mon, 1, 5, 4, 3)
 
 	func() {
-		defer mon.Start().Finish(nil)
+		defer mon.TaskNamed("bar")(nil)
 	}()
 	check(t, mon, 2, 6, 4, 3)
 }
