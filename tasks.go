@@ -26,15 +26,19 @@ type TaskMonitor struct {
 	total_started   uint64
 	total_completed uint64
 	success         uint64
-	timing          *ValueMonitor
+	success_timing  *ValueMonitor
+	error_timing    *ValueMonitor
+	total_timing    *ValueMonitor
 	errors          map[string]uint64
 	panics          uint64
 }
 
 func NewTaskMonitor() *TaskMonitor {
 	return &TaskMonitor{
-		errors: make(map[string]uint64),
-		timing: NewValueMonitor()}
+		errors:         make(map[string]uint64),
+		success_timing: NewValueMonitor(),
+		error_timing:   NewValueMonitor(),
+		total_timing:   NewValueMonitor()}
 }
 
 type TaskCtx struct {
@@ -42,7 +46,12 @@ type TaskCtx struct {
 	monitor *TaskMonitor
 }
 
-func (t *TaskMonitor) Start() *TaskCtx {
+func (t *TaskMonitor) Start() func(*error) {
+	ctx := t.NewContext()
+	return func(e *error) { ctx.Finish(e, recover()) }
+}
+
+func (t *TaskMonitor) NewContext() *TaskCtx {
 	t.mtx.Lock()
 	t.current += 1
 	t.total_started += 1
@@ -80,11 +89,28 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
 	cb("highwater", float64(highwater))
 	cb("panics", float64(panics))
 	cb("success", float64(success))
-	t.timing.Stats(func(name string, val float64) {
-		if name != "count" {
-			cb(fmt.Sprintf("time_%s", name), val)
-		}
-	})
+
+	if len(errors) > 0 {
+		t.error_timing.Stats(func(name string, val float64) {
+			if name != "count" {
+				cb(fmt.Sprintf("time_error_%s", name), val)
+			}
+		})
+	}
+	if success > 0 {
+		t.success_timing.Stats(func(name string, val float64) {
+			if name != "count" {
+				cb(fmt.Sprintf("time_success_%s", name), val)
+			}
+		})
+	}
+	if total_completed > 0 {
+		t.total_timing.Stats(func(name string, val float64) {
+			if name != "count" {
+				cb(fmt.Sprintf("time_total_%s", name), val)
+			}
+		})
+	}
 	cb("total_completed", float64(total_completed))
 	cb("total_started", float64(total_started))
 }
@@ -119,11 +145,13 @@ func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
 		if rec != nil {
 			c.monitor.panics += 1
 		}
+		c.monitor.error_timing.Add(duration.Seconds())
 	} else {
+		c.monitor.success_timing.Add(duration.Seconds())
 		c.monitor.success += 1
 	}
 	c.monitor.mtx.Unlock()
-	c.monitor.timing.Add(duration.Seconds())
+	c.monitor.total_timing.Add(duration.Seconds())
 
 	// doh, we didn't actually want to stop the panic codepath.
 	// we have to repanic
@@ -160,6 +188,5 @@ func (self *MonitorGroup) TaskNamed(name string) func(*error) {
 			"monitor already exists with different type for name %s", name))
 		return func(*error) {}
 	}
-	ctx := task_monitor.Start()
-	return func(e *error) { ctx.Finish(e, recover()) }
+	return task_monitor.Start()
 }

@@ -3,6 +3,7 @@
 package client
 
 import (
+	"math"
 	"sync"
 
 	"code.spacemonkey.com/go/errors"
@@ -19,7 +20,9 @@ type ValueMonitor struct {
 }
 
 func NewValueMonitor() *ValueMonitor {
-	return &ValueMonitor{}
+	return &ValueMonitor{
+		max: math.Inf(-1),
+		min: math.Inf(1)}
 }
 
 func (v *ValueMonitor) Add(val float64) {
