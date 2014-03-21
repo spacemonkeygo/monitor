@@ -34,25 +34,6 @@ func (c *ChainedMonitor) Stats(cb func(name string, val float64)) {
 	}
 }
 
-func (self *MonitorGroup) Chain(name string, other Monitor) {
-	name = SanitizeName(name)
-	monitor, err := self.monitors.Get(
-		name, func(_ interface{}) (interface{}, error) {
-			return NewChainedMonitor(), nil
-		})
-	if err != nil {
-		handleError(err)
-		return
-	}
-	chain_monitor, ok := monitor.(*ChainedMonitor)
-	if !ok {
-		handleError(errors.ProgrammerError.New(
-			"monitor already exists with different type for name %s", name))
-		return
-	}
-	chain_monitor.Set(other)
-}
-
 func MonitorStruct(data interface{}, cb func(name string, val float64)) {
 	val := reflect.ValueOf(data)
 	for val.Type().Kind() == reflect.Ptr {

@@ -5,8 +5,6 @@ package client
 import (
 	"math"
 	"sync"
-
-	"code.spacemonkey.com/go/errors"
 )
 
 type ValueMonitor struct {
@@ -59,22 +57,4 @@ func (v *ValueMonitor) Stats(cb func(name string, val float64)) {
 	cb("recent", recent)
 	cb("sum", sum)
 	cb("sum_squared", sum_squared)
-}
-
-func (self *MonitorGroup) Val(name string, val float64) {
-	name = SanitizeName(name)
-	monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
-		return NewValueMonitor(), nil
-	})
-	if err != nil {
-		handleError(err)
-		return
-	}
-	val_monitor, ok := monitor.(*ValueMonitor)
-	if !ok {
-		handleError(errors.ProgrammerError.New(
-			"monitor already exists with different type for name %s", name))
-		return
-	}
-	val_monitor.Add(val)
 }

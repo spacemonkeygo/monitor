@@ -6,8 +6,6 @@ import (
 	"flag"
 	"math/rand"
 	"sync"
-
-	"code.spacemonkey.com/go/errors"
 )
 
 var (
@@ -80,22 +78,4 @@ func (d *DatapointCollector) Datapoints(reset bool, cb func(name string,
 	d.mtx.Unlock()
 
 	cb("data", data_out, total, clipped, fraction)
-}
-
-func (self *MonitorGroup) Data(name string, val ...float64) {
-	name = SanitizeName(name)
-	monitor, err := self.collectors.Get(name, func(_ interface{}) (interface{}, error) {
-		return NewDatapointCollector(*collectionFraction, *collectionMax), nil
-	})
-	if err != nil {
-		handleError(err)
-		return
-	}
-	datapoint_collector, ok := monitor.(*DatapointCollector)
-	if !ok {
-		handleError(errors.ProgrammerError.New(
-			"monitor already exists with different type for name %s", name))
-		return
-	}
-	datapoint_collector.Add(val...)
 }
