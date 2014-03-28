@@ -73,6 +73,20 @@ func (self *MonitorGroup) TaskNamed(name string) func(*error) {
 	return task_monitor.Start()
 }
 
+func (self *MonitorGroup) DataTask() func(*error) {
+	// TODO: send data points
+	caller_name := CallerName()
+	idx := strings.LastIndex(caller_name, "/")
+	if idx >= 0 {
+		caller_name = caller_name[idx+1:]
+	}
+	idx = strings.Index(caller_name, ".")
+	if idx >= 0 {
+		caller_name = caller_name[idx+1:]
+	}
+	return self.TaskNamed(caller_name)
+}
+
 func (self *MonitorGroup) Data(name string, val ...float64) {
 	name = SanitizeName(name)
 	monitor, err := self.collectors.Get(name, func(_ interface{}) (interface{}, error) {
