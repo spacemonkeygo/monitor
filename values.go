@@ -3,6 +3,7 @@
 package client
 
 import (
+	"fmt"
 	"math"
 	"sync"
 )
@@ -57,4 +58,10 @@ func (v *ValueMonitor) Stats(cb func(name string, val float64)) {
 	cb("recent", recent)
 	cb("sum", sum)
 	cb("sum_squared", sum_squared)
+}
+
+func PrefixStats(name string, obj Monitor, cb func(name string, val float64)) {
+	obj.Stats(func(sub_name string, val float64) {
+		cb(fmt.Sprintf("%s.%s", name, sub_name), val)
+	})
 }
