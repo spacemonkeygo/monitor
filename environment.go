@@ -20,6 +20,7 @@ func (store *MonitorStore) RegisterEnvironment() {
 	group.Chain("goroutines", GoroutineMonitor{})
 	group.Chain("memory", MemoryMonitor{})
 	group.Chain("process", ProcessMonitor{})
+	group.Chain("runtime", RuntimeMonitor{})
 }
 
 type GoroutineMonitor struct{}
@@ -41,4 +42,26 @@ type ProcessMonitor struct{}
 func (ProcessMonitor) Stats(cb func(name string, val float64)) {
 	cb("uptime", (space_time.Monotonic() - startTime).Seconds())
 	cb("control", 1)
+}
+
+type RuntimeMonitor struct{}
+
+func (RuntimeMonitor) Stats(cb func(name string, val float64)) {
+	MonitorStruct(RuntimeInternals(), cb)
+}
+
+// InternalStats
+// shared with C. If you edit this struct, edit IStats
+type InternalStats struct {
+	GoMaxProcs        int32
+	ThreadCount       int32
+	ProcRunQueueSize  int32
+	ProcRunQueueTotal int32
+}
+
+func runtimeInternals(rv *InternalStats)
+
+func RuntimeInternals() (rv InternalStats) {
+	runtimeInternals(&rv)
+	return rv
 }
