@@ -5,14 +5,31 @@
 struct IStats
 {
   int32 GoMaxProcs;
+  int32 IdleProcs;
   int32 ThreadCount;
+  int32 IdleThreads;
+  int32 RunQueue;
   int32 ProcRunQueueSize;
   int32 ProcRunQueueTotal;
 };
 
 typedef struct IStats IStats;
 
-void ·runtimeInternals(IStats *res) {
+void ·schedTrace(Slice b, bool detailed, int32 *n) {
+  if(b.len == 0) {
+    *n = 0;
+    return;
+  }
+
+  g->writebuf = (byte*)b.array;
+  g->writenbuf = b.len;
+  runtime·schedtrace(detailed);
+  *n = b.len - g->writenbuf;
+  g->writebuf = nil;
+  g->writenbuf = 0;
+}
+
+void ·partialRuntimeInternals(IStats *res) {
   int32 i, q, t, h, s, proc_q, proc_t;
   P *p;
 
@@ -37,4 +54,6 @@ void ·runtimeInternals(IStats *res) {
   res->ThreadCount = runtime·mcount();
   res->ProcRunQueueSize = proc_q;
   res->ProcRunQueueTotal = proc_t;
+
+  // maybe someday we can set the rest without calling schedTrace
 }

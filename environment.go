@@ -3,6 +3,8 @@
 package client
 
 import (
+	"fmt"
+	"log"
 	"runtime"
 
 	space_time "code.spacemonkey.com/go/space/time"
@@ -50,18 +52,44 @@ func (RuntimeMonitor) Stats(cb func(name string, val float64)) {
 	MonitorStruct(RuntimeInternals(), cb)
 }
 
+func SchedulerTrace(out []byte, detailed bool) (n int) {
+	var rv int32
+	schedTrace(out, detailed, &rv)
+	return int(rv)
+}
+
 // InternalStats
 // shared with C. If you edit this struct, edit IStats
 type InternalStats struct {
 	GoMaxProcs        int32
+	IdleProcs         int32
 	ThreadCount       int32
+	IdleThreads       int32
+	RunQueue          int32
 	ProcRunQueueSize  int32
 	ProcRunQueueTotal int32
 }
 
-func runtimeInternals(rv *InternalStats)
+func partialRuntimeInternals(rv *InternalStats)
+
+func schedTrace(b []byte, detailed bool, n *int32)
+
+func schedTraceData(stats *InternalStats) {
+	var data [256]byte
+	SchedulerTrace(data[:], false)
+	var uptime int64
+	n, err := fmt.Sscanf(string(data[:]),
+		"SCHED %dms: gomaxprocs=%d idleprocs=%d threads=%d idlethreads=%d "+
+			"runqueue=%d", &uptime, &stats.GoMaxProcs, &stats.IdleProcs,
+		&stats.ThreadCount, &stats.IdleThreads, &stats.RunQueue)
+	if err != nil || n != 6 {
+		log.Printf("failed getting runtime data from scheduler trace: %v, %d",
+			err, n)
+	}
+}
 
 func RuntimeInternals() (rv InternalStats) {
-	runtimeInternals(&rv)
+	schedTraceData(&rv)
+	partialRuntimeInternals(&rv)
 	return rv
 }
