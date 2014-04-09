@@ -61,16 +61,12 @@ func SchedulerTrace(out []byte, detailed bool) (n int) {
 // InternalStats
 // shared with C. If you edit this struct, edit IStats
 type InternalStats struct {
-	GoMaxProcs        int32
-	IdleProcs         int32
-	ThreadCount       int32
-	IdleThreads       int32
-	RunQueue          int32
-	ProcRunQueueSize  int32
-	ProcRunQueueTotal int32
+	GoMaxProcs  int32
+	IdleProcs   int32
+	ThreadCount int32
+	IdleThreads int32
+	RunQueue    int32
 }
-
-func partialRuntimeInternals(rv *InternalStats)
 
 func schedTrace(b []byte, detailed bool, n *int32)
 
@@ -90,6 +86,5 @@ func schedTraceData(stats *InternalStats) {
 
 func RuntimeInternals() (rv InternalStats) {
 	schedTraceData(&rv)
-	partialRuntimeInternals(&rv)
 	return rv
 }
