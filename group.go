@@ -1,6 +1,6 @@
 // Copyright (C) 2013 Space Monkey, Inc.
 
-package client
+package monitor
 
 import (
 	"code.spacemonkey.com/go/space/sync"

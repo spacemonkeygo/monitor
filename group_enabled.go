@@ -2,7 +2,7 @@
 
 // +build !no_mon
 
-package client
+package monitor
 
 import (
 	"fmt"

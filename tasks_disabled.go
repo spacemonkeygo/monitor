@@ -2,7 +2,7 @@
 
 // +build no_mon
 
-package client
+package monitor
 
 func (t *TaskMonitor) Stats(cb func(name string, val float64)) {}
 

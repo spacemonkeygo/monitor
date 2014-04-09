@@ -2,7 +2,7 @@
 
 // +build no_mon
 
-package client
+package monitor
 
 func (g *MonitorGroup) Stats(cb func(name string, val float64)) {}
 
