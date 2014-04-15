@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"syscall"
 
 	space_time "code.spacemonkey.com/go/space/time"
 )
@@ -19,37 +20,40 @@ func (store *MonitorStore) RegisterEnvironment() {
 		store = DefaultStore
 	}
 	group := store.GetMonitorsNamed("env")
-	group.Chain("goroutines", GoroutineMonitor{})
-	group.Chain("memory", MemoryMonitor{})
-	group.Chain("process", ProcessMonitor{})
-	group.Chain("runtime", RuntimeMonitor{})
-}
 
-type GoroutineMonitor struct{}
+	group.Chain("goroutines", MonitorFunc(
+		func(cb func(name string, val float64)) {
+			cb("count", float64(runtime.NumGoroutine()))
+		}))
 
-func (GoroutineMonitor) Stats(cb func(name string, val float64)) {
-	cb("count", float64(runtime.NumGoroutine()))
-}
+	group.Chain("memory", MonitorFunc(
+		func(cb func(name string, val float64)) {
+			var stats runtime.MemStats
+			runtime.ReadMemStats(&stats)
+			MonitorStruct(stats, cb)
+		}))
 
-type MemoryMonitor struct{}
+	group.Chain("process", MonitorFunc(
+		func(cb func(name string, val float64)) {
+			cb("uptime", (space_time.Monotonic() - startTime).Seconds())
+			cb("control", 1)
+		}))
 
-func (MemoryMonitor) Stats(cb func(name string, val float64)) {
-	var stats runtime.MemStats
-	runtime.ReadMemStats(&stats)
-	MonitorStruct(stats, cb)
-}
+	group.Chain("runtime", MonitorFunc(
+		func(cb func(name string, val float64)) {
+			MonitorStruct(RuntimeInternals(), cb)
+		}))
 
-type ProcessMonitor struct{}
-
-func (ProcessMonitor) Stats(cb func(name string, val float64)) {
-	cb("uptime", (space_time.Monotonic() - startTime).Seconds())
-	cb("control", 1)
-}
-
-type RuntimeMonitor struct{}
-
-func (RuntimeMonitor) Stats(cb func(name string, val float64)) {
-	MonitorStruct(RuntimeInternals(), cb)
+	group.Chain("rusage", MonitorFunc(
+		func(cb func(name string, val float64)) {
+			var rusage syscall.Rusage
+			err := syscall.Getrusage(syscall.RUSAGE_SELF, &rusage)
+			if err != nil {
+				log.Printf("failed getting rusage data: %s", err)
+				return
+			}
+			MonitorStruct(&rusage, cb)
+		}))
 }
 
 func SchedulerTrace(out []byte, detailed bool) (n int) {
@@ -58,8 +62,6 @@ func SchedulerTrace(out []byte, detailed bool) (n int) {
 	return int(rv)
 }
 
-// InternalStats
-// shared with C. If you edit this struct, edit IStats
 type InternalStats struct {
 	GoMaxProcs  int32
 	IdleProcs   int32
