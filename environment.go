@@ -4,7 +4,6 @@ package monitor
 
 import (
 	"fmt"
-	"log"
 	"runtime"
 	"syscall"
 
@@ -49,7 +48,7 @@ func (store *MonitorStore) RegisterEnvironment() {
 			var rusage syscall.Rusage
 			err := syscall.Getrusage(syscall.RUSAGE_SELF, &rusage)
 			if err != nil {
-				log.Printf("failed getting rusage data: %s", err)
+				logger.Errorf("failed getting rusage data: %s", err)
 				return
 			}
 			MonitorStruct(&rusage, cb)
@@ -81,7 +80,7 @@ func schedTraceData(stats *InternalStats) {
 			"runqueue=%d", &uptime, &stats.GoMaxProcs, &stats.IdleProcs,
 		&stats.ThreadCount, &stats.IdleThreads, &stats.RunQueue)
 	if err != nil || n != 6 {
-		log.Printf("failed getting runtime data from scheduler trace: %v, %d",
+		logger.Errorf("failed getting runtime data from scheduler trace: %v, %d",
 			err, n)
 	}
 }
