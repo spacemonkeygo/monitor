@@ -37,6 +37,24 @@ func CallerName() string {
 	return strings.TrimPrefix(f.Name(), "code.spacemonkey.com/go/")
 }
 
+func PackageName() string {
+	pc, _, _, ok := runtime.Caller(2)
+	if !ok {
+		return "unknown"
+	}
+	f := runtime.FuncForPC(pc)
+	if f == nil {
+		return "unknown"
+	}
+	name := strings.TrimPrefix(f.Name(), "code.spacemonkey.com/go/")
+
+	idx := strings.Index(name, ".")
+	if idx >= 0 {
+		name = name[:idx]
+	}
+	return name
+}
+
 func handleError(err error) {
 	logger.Errorf("monitoring error: %s", err)
 }
@@ -62,7 +80,7 @@ func Datapoints(reset bool, cb func(name string, data [][]float64, total uint64,
 }
 
 func GetMonitors() *MonitorGroup {
-	return DefaultStore.GetMonitorsNamed(CallerName())
+	return DefaultStore.GetMonitorsNamed(PackageName())
 }
 
 func GetMonitorsNamed(name string) *MonitorGroup {

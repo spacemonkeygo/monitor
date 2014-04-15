@@ -61,5 +61,5 @@ func (s *MonitorStore) GetMonitorsNamed(group_name string) *MonitorGroup {
 }
 
 func (s *MonitorStore) GetMonitors() *MonitorGroup {
-	return s.GetMonitorsNamed(CallerName())
+	return s.GetMonitorsNamed(PackageName())
 }
