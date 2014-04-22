@@ -109,6 +109,8 @@ func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
 		error_name = SanitizeName(error_name)
 	}
 
+	duration_seconds := int64(duration * time.Nanosecond / time.Second)
+
 	c.monitor.mtx.Lock()
 	c.monitor.current -= 1
 	c.monitor.total_completed += 1
@@ -117,13 +119,13 @@ func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
 		if rec != nil {
 			c.monitor.panics += 1
 		}
-		c.monitor.error_timing.Add(duration.Seconds())
+		c.monitor.error_timing.Add(duration_seconds)
 	} else {
-		c.monitor.success_timing.Add(duration.Seconds())
+		c.monitor.success_timing.Add(duration_seconds)
 		c.monitor.success += 1
 	}
 	c.monitor.mtx.Unlock()
-	c.monitor.total_timing.Add(duration.Seconds())
+	c.monitor.total_timing.Add(duration_seconds)
 
 	// doh, we didn't actually want to stop the panic codepath.
 	// we have to repanic

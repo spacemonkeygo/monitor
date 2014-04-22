@@ -19,9 +19,9 @@ type TaskMonitor struct {
 	total_started   uint64
 	total_completed uint64
 	success         uint64
-	success_timing  *ValueMonitor
-	error_timing    *ValueMonitor
-	total_timing    *ValueMonitor
+	success_timing  *IntValueMonitor
+	error_timing    *IntValueMonitor
+	total_timing    *IntValueMonitor
 	errors          map[string]uint64
 	panics          uint64
 }
@@ -29,7 +29,7 @@ type TaskMonitor struct {
 func NewTaskMonitor() *TaskMonitor {
 	return &TaskMonitor{
 		errors:         make(map[string]uint64),
-		success_timing: NewValueMonitor(),
-		error_timing:   NewValueMonitor(),
-		total_timing:   NewValueMonitor()}
+		success_timing: NewIntValueMonitor(),
+		error_timing:   NewIntValueMonitor(),
+		total_timing:   NewIntValueMonitor()}
 }

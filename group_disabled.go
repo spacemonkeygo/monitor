@@ -13,6 +13,7 @@ func (g *MonitorGroup) Datapoints(reset bool, cb func(name string,
 func (self *MonitorGroup) Data(name string, val ...float64) {}
 func (self *MonitorGroup) Event(name string)                {}
 func (self *MonitorGroup) Val(name string, val float64)     {}
+func (self *MonitorGroup) IntVal(name string, val int64)    {}
 func (self *MonitorGroup) Chain(name string, other Monitor) {}
 
 func (self *MonitorGroup) Task() func(*error) {

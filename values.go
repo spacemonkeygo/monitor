@@ -58,3 +58,57 @@ func (v *ValueMonitor) Stats(cb func(name string, val float64)) {
 	cb("sum", sum)
 	cb("sum_squared", sum_squared)
 }
+
+// IntValueMonitor is faster when you don't want to deal with
+// floating-point ops
+type IntValueMonitor struct {
+	mtx         sync.Mutex
+	recent      int64
+	count       int64
+	sum         int64
+	sum_squared int64
+	max         int64
+	min         int64
+}
+
+func NewIntValueMonitor() *IntValueMonitor {
+	return &IntValueMonitor{
+		max: math.MinInt64,
+		min: math.MaxInt64}
+}
+
+func (v *IntValueMonitor) Add(val int64) {
+	v.mtx.Lock()
+	v.count += 1
+	v.sum += val
+	v.sum_squared += (val * val)
+	v.recent = val
+	if val > v.max {
+		v.max = val
+	}
+	if val < v.min {
+		v.min = val
+	}
+	v.mtx.Unlock()
+}
+
+func (v *IntValueMonitor) Stats(cb func(name string, val float64)) {
+	v.mtx.Lock()
+	count := v.count
+	sum := v.sum
+	sum_squared := v.sum_squared
+	recent := v.recent
+	max := v.max
+	min := v.min
+	v.mtx.Unlock()
+
+	if count > 0 {
+		cb("avg", float64(sum/count))
+	}
+	cb("count", float64(count))
+	cb("max", float64(max))
+	cb("min", float64(min))
+	cb("recent", float64(recent))
+	cb("sum", float64(sum))
+	cb("sum_squared", float64(sum_squared))
+}
