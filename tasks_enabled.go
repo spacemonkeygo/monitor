@@ -13,6 +13,11 @@ import (
 	space_time "code.spacemonkey.com/go/space/time"
 )
 
+const (
+	secondInMicroseconds     = 1000000
+	microsecondInNanoseconds = 1000
+)
+
 type TaskCtx struct {
 	start   time.Duration
 	monitor *TaskMonitor
@@ -65,21 +70,24 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
 	if len(errors) > 0 {
 		t.error_timing.Stats(func(name string, val float64) {
 			if name != "count" {
-				cb(fmt.Sprintf("time_error_%s", name), val)
+				// these values are in microseconds, convert to seconds
+				cb(fmt.Sprintf("time_error_%s", name), val/secondInMicroseconds)
 			}
 		})
 	}
 	if success > 0 {
 		t.success_timing.Stats(func(name string, val float64) {
 			if name != "count" {
-				cb(fmt.Sprintf("time_success_%s", name), val)
+				// these values are in microseconds, convert to seconds
+				cb(fmt.Sprintf("time_success_%s", name), val/secondInMicroseconds)
 			}
 		})
 	}
 	if total_completed > 0 {
 		t.total_timing.Stats(func(name string, val float64) {
 			if name != "count" {
-				cb(fmt.Sprintf("time_total_%s", name), val)
+				// these values are in microseconds, convert to seconds
+				cb(fmt.Sprintf("time_total_%s", name), val/secondInMicroseconds)
 			}
 		})
 	}
@@ -88,7 +96,7 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
 }
 
 func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
-	duration := space_time.Monotonic() - c.start
+	duration_nanoseconds := int64(space_time.Monotonic() - c.start)
 	var error_name string
 	var err error
 	if err_ref != nil {
@@ -109,7 +117,10 @@ func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
 		error_name = SanitizeName(error_name)
 	}
 
-	duration_seconds := int64(duration * time.Nanosecond / time.Second)
+	// we keep granularity on the order microseconds, which should keep
+	// sum_squared useful
+	duration_microseconds := int64(duration_nanoseconds /
+		microsecondInNanoseconds)
 
 	c.monitor.mtx.Lock()
 	c.monitor.current -= 1
@@ -119,13 +130,13 @@ func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
 		if rec != nil {
 			c.monitor.panics += 1
 		}
-		c.monitor.error_timing.Add(duration_seconds)
+		c.monitor.error_timing.Add(duration_microseconds)
 	} else {
-		c.monitor.success_timing.Add(duration_seconds)
+		c.monitor.success_timing.Add(duration_microseconds)
 		c.monitor.success += 1
 	}
 	c.monitor.mtx.Unlock()
-	c.monitor.total_timing.Add(duration_seconds)
+	c.monitor.total_timing.Add(duration_microseconds)
 
 	// doh, we didn't actually want to stop the panic codepath.
 	// we have to repanic
