@@ -4,15 +4,9 @@ package monitor
 
 import (
 	"fmt"
-	"regexp"
 
 	"code.spacemonkey.com/go/space/crc"
 	"code.spacemonkey.com/go/types"
-)
-
-var (
-	badChars = regexp.MustCompile("[^a-zA-Z0-9_.-]")
-	slashes  = regexp.MustCompile("[/]")
 )
 
 type MonitorFunc func(cb func(name string, val float64))
@@ -45,6 +39,21 @@ func FloatHash(data types.Binary) float64 {
 }
 
 func SanitizeName(name string) string {
-	return badChars.ReplaceAllLiteralString(
-		slashes.ReplaceAllLiteralString(name, "."), "_")
+	rname := []byte(name)
+	for i, r := range rname {
+		switch {
+		case r >= 'A' && r <= 'Z':
+		case r >= 'a' && r <= 'z':
+		case r >= '0' && r <= '9':
+		default:
+			switch r {
+			case '_', '.', '-':
+			case '/':
+				rname[i] = '.'
+			default:
+				rname[i] = '_'
+			}
+		}
+	}
+	return string(rname)
 }
