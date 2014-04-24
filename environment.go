@@ -4,6 +4,8 @@ package monitor
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"runtime"
 	"syscall"
 
@@ -34,8 +36,14 @@ func (store *MonitorStore) RegisterEnvironment() {
 
 	group.Chain("process", MonitorFunc(
 		func(cb func(name string, val float64)) {
-			cb("uptime", (space_time.Monotonic() - startTime).Seconds())
 			cb("control", 1)
+			fds, err := FdCount()
+			if err != nil {
+				logger.Errorf("failed getting fd count: %s", err)
+			} else {
+				cb("fds", float64(fds))
+			}
+			cb("uptime", (space_time.Monotonic() - startTime).Seconds())
 		}))
 
 	group.Chain("runtime", MonitorFunc(
@@ -88,4 +96,22 @@ func schedTraceData(stats *InternalStats) {
 func RuntimeInternals() (rv InternalStats) {
 	schedTraceData(&rv)
 	return rv
+}
+
+func FdCount() (count int, err error) {
+	f, err := os.Open("/proc/self/fd")
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+	for {
+		names, err := f.Readdirnames(4096)
+		count += len(names)
+		if err != nil {
+			if err == io.EOF {
+				return count, nil
+			}
+			return count, err
+		}
+	}
 }
