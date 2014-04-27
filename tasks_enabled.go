@@ -9,7 +9,8 @@ import (
 	"sort"
 	"time"
 
-	"code.spacemonkey.com/go/errors"
+	"github.com/SpaceMonkeyGo/errors"
+
 	space_time "code.spacemonkey.com/go/space/time"
 )
 

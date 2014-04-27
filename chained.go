@@ -7,7 +7,7 @@ import (
 	"sort"
 	"sync"
 
-	"code.spacemonkey.com/go/errors"
+	"github.com/SpaceMonkeyGo/errors"
 )
 
 type ChainedMonitor struct {

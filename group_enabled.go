@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"code.spacemonkey.com/go/errors"
+	"github.com/SpaceMonkeyGo/errors"
 )
 
 func (g *MonitorGroup) Stats(cb func(name string, val float64)) {

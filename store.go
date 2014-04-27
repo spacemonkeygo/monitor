@@ -3,7 +3,8 @@
 package monitor
 
 import (
-	"code.spacemonkey.com/go/errors"
+	"github.com/SpaceMonkeyGo/errors"
+
 	"code.spacemonkey.com/go/space/sync"
 )
 
