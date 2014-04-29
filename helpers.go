@@ -5,8 +5,7 @@ package monitor
 import (
 	"fmt"
 
-	"code.spacemonkey.com/go/space/crc"
-	"code.spacemonkey.com/go/types"
+	"github.com/SpaceMonkeyGo/crc"
 )
 
 type MonitorFunc func(cb func(name string, val float64))
@@ -34,8 +33,8 @@ func BoolAsFloat(val bool) float64 {
 	return 0
 }
 
-func FloatHash(data types.Binary) float64 {
-	return float64(crc.CRC(crc.InitialCRC, []byte(data)))
+func FloatHash(data []byte) float64 {
+	return float64(crc.CRC(crc.InitialCRC, data))
 }
 
 func SanitizeName(name string) string {

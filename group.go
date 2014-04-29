@@ -3,19 +3,19 @@
 package monitor
 
 import (
-	"code.spacemonkey.com/go/space/sync"
+	"github.com/SpaceMonkeyGo/monitor/utils"
 )
 
 type MonitorGroup struct {
 	group_name string
-	monitors   *sync.ThreadsafeCache
-	collectors *sync.ThreadsafeCache
+	monitors   *utils.ThreadsafeCache
+	collectors *utils.ThreadsafeCache
 }
 
 func NewMonitorGroup(name string) *MonitorGroup {
 	return &MonitorGroup{
 		group_name: SanitizeName(name),
-		monitors:   sync.NewThreadsafeCache(),
-		collectors: sync.NewThreadsafeCache(),
+		monitors:   utils.NewThreadsafeCache(),
+		collectors: utils.NewThreadsafeCache(),
 	}
 }

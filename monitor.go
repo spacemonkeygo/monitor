@@ -7,13 +7,13 @@ import (
 	"sort"
 	"strings"
 
-	space_log "code.spacemonkey.com/go/space/log"
+	"github.com/SpaceMonkeyGo/spacelog"
 )
 
 var (
 	DefaultStore = NewMonitorStore()
 
-	logger = space_log.GetLogger()
+	logger = spacelog.GetLogger()
 )
 
 type Monitor interface {

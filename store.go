@@ -4,16 +4,15 @@ package monitor
 
 import (
 	"github.com/SpaceMonkeyGo/errors"
-
-	"code.spacemonkey.com/go/space/sync"
+	"github.com/SpaceMonkeyGo/monitor/utils"
 )
 
 type MonitorStore struct {
-	groups *sync.ThreadsafeCache
+	groups *utils.ThreadsafeCache
 }
 
 func NewMonitorStore() *MonitorStore {
-	return &MonitorStore{groups: sync.NewThreadsafeCache()}
+	return &MonitorStore{groups: utils.NewThreadsafeCache()}
 }
 
 func (s *MonitorStore) Stats(cb func(name string, val float64)) {

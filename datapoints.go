@@ -4,9 +4,8 @@ package monitor
 
 import (
 	"flag"
+	"math/rand"
 	"sync"
-
-	"code.spacemonkey.com/go/space/rand"
 )
 
 var (

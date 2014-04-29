@@ -9,11 +9,11 @@ import (
 	"runtime"
 	"syscall"
 
-	space_time "code.spacemonkey.com/go/space/time"
+	"github.com/SpaceMonkeyGo/monotime"
 )
 
 var (
-	startTime = space_time.Monotonic()
+	startTime = monotime.Monotonic()
 )
 
 func (store *MonitorStore) RegisterEnvironment() {
@@ -43,7 +43,7 @@ func (store *MonitorStore) RegisterEnvironment() {
 			} else {
 				cb("fds", float64(fds))
 			}
-			cb("uptime", (space_time.Monotonic() - startTime).Seconds())
+			cb("uptime", (monotime.Monotonic() - startTime).Seconds())
 		}))
 
 	group.Chain("runtime", MonitorFunc(

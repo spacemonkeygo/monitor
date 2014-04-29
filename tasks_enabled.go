@@ -10,8 +10,7 @@ import (
 	"time"
 
 	"github.com/SpaceMonkeyGo/errors"
-
-	space_time "code.spacemonkey.com/go/space/time"
+	"github.com/SpaceMonkeyGo/monotime"
 )
 
 const (
@@ -37,7 +36,7 @@ func (t *TaskMonitor) NewContext() *TaskCtx {
 		t.highwater = t.current
 	}
 	t.mtx.Unlock()
-	return &TaskCtx{start: space_time.Monotonic(), monitor: t}
+	return &TaskCtx{start: monotime.Monotonic(), monitor: t}
 }
 
 func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
@@ -97,7 +96,7 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
 }
 
 func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
-	duration_nanoseconds := int64(space_time.Monotonic() - c.start)
+	duration_nanoseconds := int64(monotime.Monotonic() - c.start)
 	var error_name string
 	var err error
 	if err_ref != nil {
