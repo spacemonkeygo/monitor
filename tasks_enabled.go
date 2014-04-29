@@ -18,16 +18,23 @@ const (
 	microsecondInNanoseconds = 1000
 )
 
+// TaskCtx keeps track of a task as it is running.
 type TaskCtx struct {
 	start   time.Duration
 	monitor *TaskMonitor
 }
 
+// Start is a helper method for watching a task in a less error-prone way.
+// Managing a task context yourself is tricky to get right - recover only works
+// in deferred methods. Call out of a method that was deferred and it no longer
+// works! See the example.
 func (t *TaskMonitor) Start() func(*error) {
 	ctx := t.NewContext()
 	return func(e *error) { ctx.Finish(e, recover()) }
 }
 
+// NewContext creates a new context that is watching a live task. See Start
+// or MonitorGroup.Task
 func (t *TaskMonitor) NewContext() *TaskCtx {
 	t.mtx.Lock()
 	t.current += 1
@@ -39,6 +46,7 @@ func (t *TaskMonitor) NewContext() *TaskCtx {
 	return &TaskCtx{start: monotime.Monotonic(), monitor: t}
 }
 
+// Stats conforms to the Monitor interface
 func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
 	t.mtx.Lock()
 	current := t.current
@@ -95,6 +103,11 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
 	cb("total_started", float64(total_started))
 }
 
+// Finish records a successful task completion. You must pass a pointer to
+// the named error return value (or nil if there isn't one) and the result
+// of recover() out of the method that was deferred for this to work right.
+// Finish will re-panic any recovered panics (provided it wasn't a nil panic)
+// after bookkeeping.
 func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
 	duration_nanoseconds := int64(monotime.Monotonic() - c.start)
 	var error_name string
@@ -139,7 +152,7 @@ func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
 	c.monitor.total_timing.Add(duration_microseconds)
 
 	// doh, we didn't actually want to stop the panic codepath.
-	// we have to repanic
+	// we have to repanic. Oh and great, panics can be nil. Welp!
 	if rec != nil {
 		panic(rec)
 	}

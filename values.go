@@ -7,6 +7,8 @@ import (
 	"sync"
 )
 
+// ValueMonitor keeps track of the highs and lows and averages and most recent
+// versions of some value
 type ValueMonitor struct {
 	mtx         sync.Mutex
 	recent      float64
@@ -17,12 +19,15 @@ type ValueMonitor struct {
 	min         float64
 }
 
+// NewValueMonitor creates a new ValueMonitor. You probably want to create a
+// new ValueMonitor through MonitorGroup.Val instead.
 func NewValueMonitor() *ValueMonitor {
 	return &ValueMonitor{
 		max: math.Inf(-1),
 		min: math.Inf(1)}
 }
 
+// Add adds a value to the ValueMonitor
 func (v *ValueMonitor) Add(val float64) {
 	v.mtx.Lock()
 	v.count += 1
@@ -38,6 +43,7 @@ func (v *ValueMonitor) Add(val float64) {
 	v.mtx.Unlock()
 }
 
+// Stats conforms to the Monitor interface
 func (v *ValueMonitor) Stats(cb func(name string, val float64)) {
 	v.mtx.Lock()
 	count := v.count
@@ -59,7 +65,7 @@ func (v *ValueMonitor) Stats(cb func(name string, val float64)) {
 	cb("sum_squared", sum_squared)
 }
 
-// IntValueMonitor is faster when you don't want to deal with
+// IntValueMonitor is faster than ValueMonitor when you don't want to deal with
 // floating-point ops
 type IntValueMonitor struct {
 	mtx         sync.Mutex
@@ -71,12 +77,15 @@ type IntValueMonitor struct {
 	min         int64
 }
 
+// NewIntValueMonitor returns a new IntValueMonitor. You probably want to
+// create a new IntValueMonitor through MonitorGroup.IntVal instead.
 func NewIntValueMonitor() *IntValueMonitor {
 	return &IntValueMonitor{
 		max: math.MinInt64,
 		min: math.MaxInt64}
 }
 
+// Add adds a value to the IntValueMonitor
 func (v *IntValueMonitor) Add(val int64) {
 	v.mtx.Lock()
 	v.count += 1
@@ -92,6 +101,7 @@ func (v *IntValueMonitor) Add(val int64) {
 	v.mtx.Unlock()
 }
 
+// Stats conforms to the Monitor interface
 func (v *IntValueMonitor) Stats(cb func(name string, val float64)) {
 	v.mtx.Lock()
 	count := v.count

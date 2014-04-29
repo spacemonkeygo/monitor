@@ -15,6 +15,7 @@ var (
 		"The max datapoints to collect")
 )
 
+// DatapointCollector collects a set of datapoints
 type DatapointCollector struct {
 	mtx                 sync.Mutex
 	collection_fraction float64
@@ -25,12 +26,20 @@ type DatapointCollector struct {
 	dataset             [][]float64
 }
 
+// NewDatapointCollector makes a new DatapointCollector that will collect
+// collection_fraction of all datapoints, and will start clipping data once
+// collection_max has been reached without getting drained.
+//
+// You probably want to create a new DatapointCollector using MonitorGroup.Data
+// instead.
 func NewDatapointCollector(collection_fraction float64, collection_max int) *DatapointCollector {
 	return &DatapointCollector{
 		collection_fraction: collection_fraction,
 		collection_max:      collection_max}
 }
 
+// Add adds new datapoints to the collector. A datapoint is an n-dimensional
+// vector. There should be one argument for each scalar in the vector.
 func (d *DatapointCollector) Add(val ...float64) {
 	d.mtx.Lock()
 	defer d.mtx.Unlock()
@@ -55,6 +64,10 @@ func (d *DatapointCollector) Add(val ...float64) {
 	}
 }
 
+// Datapoints returns all of the saved datapoints and any statistics about the
+// dataset retained to cb. If reset is true, the collector will be reset and
+// the datapoints will be drained from the collector. Datapoints conforms to
+// the DataCollection interface.
 func (d *DatapointCollector) Datapoints(reset bool, cb func(name string,
 	data [][]float64, total uint64, clipped bool, fraction float64)) {
 

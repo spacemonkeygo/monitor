@@ -8,16 +8,22 @@ import (
 	"github.com/SpaceMonkeyGo/crc"
 )
 
+// MonitorFunc assists in Monitor interface instances
 type MonitorFunc func(cb func(name string, val float64))
 
+// Stats just calls f with the given cb
 func (f MonitorFunc) Stats(cb func(name string, val float64)) { f(cb) }
 
+// PrefixStats will call cb with all of the same calls obj would have, except
+// every name is prefixed with name.
 func PrefixStats(name string, obj Monitor, cb func(name string, val float64)) {
 	obj.Stats(func(sub_name string, val float64) {
 		cb(fmt.Sprintf("%s.%s", name, sub_name), val)
 	})
 }
 
+// Collect takes something that implements the Monitor interface and returns
+// a key/value map.
 func Collect(mon Monitor) map[string]float64 {
 	rv := make(map[string]float64)
 	mon.Stats(func(name string, val float64) {
@@ -26,6 +32,8 @@ func Collect(mon Monitor) map[string]float64 {
 	return rv
 }
 
+// BoolAsFloat converts a bool value into a float64 value, for easier datapoint
+// usage.
 func BoolAsFloat(val bool) float64 {
 	if val {
 		return 1
@@ -33,10 +41,14 @@ func BoolAsFloat(val bool) float64 {
 	return 0
 }
 
+// FloatHash CRCs a byte array and converts the CRC into a float64, for easier
+// datapoint usage.
 func FloatHash(data []byte) float64 {
 	return float64(crc.CRC(crc.InitialCRC, data))
 }
 
+// SanitizeName cleans a stat or datapoint name to be representable in a wide
+// range of data collection software.
 func SanitizeName(name string) string {
 	rname := []byte(name)
 	for i, r := range rname {

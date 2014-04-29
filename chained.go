@@ -10,21 +10,27 @@ import (
 	"github.com/SpaceMonkeyGo/errors"
 )
 
+// ChainedMonitor is a monitor that simply wraps another monitor, while
+// allowing for atomic monitor changing.
 type ChainedMonitor struct {
 	mtx   sync.Mutex
 	other Monitor
 }
 
+// NewChainedMonitor returns a ChainedMonitor
 func NewChainedMonitor() *ChainedMonitor {
 	return &ChainedMonitor{}
 }
 
+// Set replaces the ChainedMonitor's existing monitor with other
 func (c *ChainedMonitor) Set(other Monitor) {
 	c.mtx.Lock()
 	c.other = other
 	c.mtx.Unlock()
 }
 
+// Stats conforms to the Monitor interface, and passes the call to the chained
+// monitor.
 func (c *ChainedMonitor) Stats(cb func(name string, val float64)) {
 	c.mtx.Lock()
 	other := c.other
@@ -34,6 +40,8 @@ func (c *ChainedMonitor) Stats(cb func(name string, val float64)) {
 	}
 }
 
+// MonitorStruct uses reflection to walk the structure data and call cb with
+// every field and value on the struct that's castable to float64.
 func MonitorStruct(data interface{}, cb func(name string, val float64)) {
 	val := reflect.ValueOf(data)
 	for val.Type().Kind() == reflect.Ptr {
@@ -55,6 +63,7 @@ func MonitorStruct(data interface{}, cb func(name string, val float64)) {
 	MonitorMap(vals, cb)
 }
 
+// MonitorMap sends a map of keys and values to a callback.
 func MonitorMap(data map[string]float64, cb func(name string, val float64)) {
 	names := make([]string, 0, len(data))
 	for name := range data {

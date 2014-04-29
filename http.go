@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+// ServeHTTP dumps all of the MonitorStore's keys and values to the requester.
+// This method allows a MonitorStore to be registered as an HTTP handler.
 func (s *MonitorStore) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	s.Stats(func(name string, val float64) {

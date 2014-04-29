@@ -16,6 +16,10 @@ var (
 	startTime = monotime.Monotonic()
 )
 
+// RegisterEnvironment configures the MonitorStore receiver to understand all
+// sorts of process environment statistics, such as memory statistics,
+// process uptime, file descriptor use, goroutine use, runtime internals,
+// Rusage stats, etc.
 func (store *MonitorStore) RegisterEnvironment() {
 	if store == nil {
 		store = DefaultStore
@@ -63,12 +67,15 @@ func (store *MonitorStore) RegisterEnvironment() {
 		}))
 }
 
+// SchedulerTrace collects the output of the standard scheduler trace debug
+// output line
 func SchedulerTrace(out []byte, detailed bool) (n int) {
 	var rv int32
 	schedTrace(out, detailed, &rv)
 	return int(rv)
 }
 
+// InternalStats represents the data typically displayed in a scheduler trace.
 type InternalStats struct {
 	GoMaxProcs  int32
 	IdleProcs   int32
@@ -93,11 +100,13 @@ func schedTraceData(stats *InternalStats) {
 	}
 }
 
+// RuntimeInternals parses a scheduler trace line into an InternalStats struct
 func RuntimeInternals() (rv InternalStats) {
 	schedTraceData(&rv)
 	return rv
 }
 
+// FdCount counts how many open file descriptors there are.
 func FdCount() (count int, err error) {
 	f, err := os.Open("/proc/self/fd")
 	if err != nil {

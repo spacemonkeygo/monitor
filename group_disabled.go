@@ -16,9 +16,8 @@ func (self *MonitorGroup) Val(name string, val float64)     {}
 func (self *MonitorGroup) IntVal(name string, val int64)    {}
 func (self *MonitorGroup) Chain(name string, other Monitor) {}
 
-func (self *MonitorGroup) Task() func(*error) {
-	return func(*error) {}
-}
+func (self *MonitorGroup) Task() func(*error)     { return func(*error) {} }
+func (self *MonitorGroup) DataTask() func(*error) { return func(*error) {} }
 
 func (self *MonitorGroup) TaskNamed(name string) func(*error) {
 	return func(*error) {}

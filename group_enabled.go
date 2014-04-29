@@ -11,6 +11,8 @@ import (
 	"github.com/SpaceMonkeyGo/errors"
 )
 
+// Stats conforms to the Monitor interface. Stats aggregates all statistics
+// attatched to this group.
 func (g *MonitorGroup) Stats(cb func(name string, val float64)) {
 	snapshot := g.monitors.Snapshot()
 	for _, name := range sortedStringKeys(snapshot) {
@@ -25,6 +27,8 @@ func (g *MonitorGroup) Stats(cb func(name string, val float64)) {
 	}
 }
 
+// Datapoints conforms to the DataCollection interface. Datapoints aggregates
+// all datasets attached to this group.
 func (g *MonitorGroup) Datapoints(reset bool, cb func(name string,
 	data [][]float64, total uint64, clipped bool, fraction float64)) {
 	snapshot := g.collectors.Snapshot()
@@ -42,6 +46,14 @@ func (g *MonitorGroup) Datapoints(reset bool, cb func(name string,
 	}
 }
 
+// Task allows you to monitor a specific function. Task automatically chooses
+// a name for you based on the callstack and creates a TaskMonitor for you by
+// that name if one doesn't already exist. If you'd like to pick your own
+// metric name (and improve performance), use TaskNamed. Please see the
+// example.
+//
+// N.B.: Error types are best tracked when you're using Space Monkey's
+// hierarchical error package: http://github.com/SpaceMonkeyGo/errors
 func (self *MonitorGroup) Task() func(*error) {
 	caller_name := CallerName()
 	idx := strings.LastIndex(caller_name, "/")
@@ -55,9 +67,11 @@ func (self *MonitorGroup) Task() func(*error) {
 	return self.TaskNamed(caller_name)
 }
 
+// TaskNamed works just like Task without any automatic name selection
 func (self *MonitorGroup) TaskNamed(name string) func(*error) {
 	name = SanitizeName(name)
-	monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
+	monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{},
+		error) {
 		return NewTaskMonitor(), nil
 	})
 	if err != nil {
@@ -73,8 +87,10 @@ func (self *MonitorGroup) TaskNamed(name string) func(*error) {
 	return task_monitor.Start()
 }
 
+// DataTask works just like Task, but automatically makes datapoints about
+// the task in question. It's a hybrid of Data and Task.
 func (self *MonitorGroup) DataTask() func(*error) {
-	// TODO: send data points
+	// TODO: actually send data points
 	caller_name := CallerName()
 	idx := strings.LastIndex(caller_name, "/")
 	if idx >= 0 {
@@ -87,9 +103,12 @@ func (self *MonitorGroup) DataTask() func(*error) {
 	return self.TaskNamed(caller_name)
 }
 
+// Data takes a name, makes a DataCollector if one doesn't exist, and adds
+// a datapoint to it.
 func (self *MonitorGroup) Data(name string, val ...float64) {
 	name = SanitizeName(name)
-	monitor, err := self.collectors.Get(name, func(_ interface{}) (interface{}, error) {
+	monitor, err := self.collectors.Get(name, func(_ interface{}) (interface{},
+		error) {
 		return NewDatapointCollector(*collectionFraction, *collectionMax), nil
 	})
 	if err != nil {
@@ -105,9 +124,12 @@ func (self *MonitorGroup) Data(name string, val ...float64) {
 	datapoint_collector.Add(val...)
 }
 
+// Event creates an EventMonitor by the given name if one doesn't exist and
+// adds an event to it.
 func (self *MonitorGroup) Event(name string) {
 	name = SanitizeName(name)
-	monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
+	monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{},
+		error) {
 		return NewEventMonitor(), nil
 	})
 	if err != nil {
@@ -123,9 +145,12 @@ func (self *MonitorGroup) Event(name string) {
 	event_monitor.Add()
 }
 
+// Val creates a ValueMonitor by the given name if one doesn't exist and adds
+// a value to it.
 func (self *MonitorGroup) Val(name string, val float64) {
 	name = SanitizeName(name)
-	monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
+	monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{},
+		error) {
 		return NewValueMonitor(), nil
 	})
 	if err != nil {
@@ -141,10 +166,12 @@ func (self *MonitorGroup) Val(name string, val float64) {
 	val_monitor.Add(val)
 }
 
-// IntVal is faster when you don't want to deal with floating point ops
+// IntVal is faster than Val when you don't want to deal with floating point
+// ops.
 func (self *MonitorGroup) IntVal(name string, val int64) {
 	name = SanitizeName(name)
-	monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{}, error) {
+	monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{},
+		error) {
 		return NewIntValueMonitor(), nil
 	})
 	if err != nil {
@@ -160,6 +187,8 @@ func (self *MonitorGroup) IntVal(name string, val int64) {
 	val_monitor.Add(val)
 }
 
+// Chain creates a ChainedMonitor by the given name if one doesn't exist and
+// sets the Monitor other to it.
 func (self *MonitorGroup) Chain(name string, other Monitor) {
 	name = SanitizeName(name)
 	monitor, err := self.monitors.Get(

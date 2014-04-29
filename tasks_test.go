@@ -80,3 +80,14 @@ func TestTaskPanics(t *testing.T) {
 	}()
 	check(t, mon, 2, 6, 4, 3)
 }
+
+func ExampleTaskMonitor_Start(t *testing.T) {
+	task := NewTaskMonitor()
+	myfunc := func() (err error) {
+		defer task.Start()(&err)
+		// do some work
+		// maybe return an error
+		return nil
+	}
+	myfunc()
+}
