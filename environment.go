@@ -42,7 +42,6 @@ func (store *MonitorStore) RegisterEnvironment() {
 	process_crc, err := ProcessCRC()
 	if err != nil {
 		logger.Errorf("failed determining process crc: %s", err)
-	} else {
 		process_crc = 0
 	}
 
