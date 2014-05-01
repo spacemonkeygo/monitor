@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"syscall"
 
+	"github.com/SpaceMonkeyGo/crc"
 	"github.com/SpaceMonkeyGo/monotime"
 )
 
@@ -38,6 +39,13 @@ func (store *MonitorStore) RegisterEnvironment() {
 			MonitorStruct(stats, cb)
 		}))
 
+	process_crc, err := ProcessCRC()
+	if err != nil {
+		logger.Errorf("failed determining process crc: %s", err)
+	} else {
+		process_crc = 0
+	}
+
 	group.Chain("process", MonitorFunc(
 		func(cb func(name string, val float64)) {
 			cb("control", 1)
@@ -47,6 +55,7 @@ func (store *MonitorStore) RegisterEnvironment() {
 			} else {
 				cb("fds", float64(fds))
 			}
+			cb("crc", float64(process_crc))
 			cb("uptime", (monotime.Monotonic() - startTime).Seconds())
 		}))
 
@@ -123,4 +132,25 @@ func FdCount() (count int, err error) {
 			return count, err
 		}
 	}
+}
+
+type writerFunc func(p []byte) (n int, err error)
+
+func (f writerFunc) Write(p []byte) (n int, err error) { return f(p) }
+
+func ProcessCRC() (uint32, error) {
+	fh, err := os.Open("/proc/self/exe")
+	if err != nil {
+		return 0, err
+	}
+	defer fh.Close()
+	c := crc.InitialCRC
+	_, err = io.Copy(writerFunc(func(p []byte) (n int, err error) {
+		c = crc.CRC(c, p)
+		return len(p), nil
+	}), fh)
+	if err != nil {
+		return 0, err
+	}
+	return c, nil
 }
