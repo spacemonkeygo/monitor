@@ -67,6 +67,13 @@ http://localhost:8080/ to return all sorts of data, such as:
  * How many errors we've received (per error type!)
  * Statistics on how many stowaways we usually have (min/max/avg/recent/etc)
 
+To collect these statistics without the http server, you can call
+monitor.Stats like so
+
+	monitor.Stats(func(name string, val float64) {
+		// do something with name, val
+	})
+
 This package lets you easily instrument your code with all of these goodies and
 more!
 */
