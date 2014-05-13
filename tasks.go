@@ -32,7 +32,7 @@ var (
 // of errors the task had, and how many times the task had a panic.
 //
 // N.B.: Error types are best tracked when you're using Space Monkey's
-// hierarchical error package: http://github.com/SpaceMonkeyGo/errors
+// hierarchical error package: http://github.com/spacemonkeygo/errors
 type TaskMonitor struct {
 	mtx             sync.Mutex
 	current         uint64

@@ -19,7 +19,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/SpaceMonkeyGo/errors"
+	"github.com/spacemonkeygo/errors"
 )
 
 // ChainedMonitor is a monitor that simply wraps another monitor, while

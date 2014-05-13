@@ -21,8 +21,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/SpaceMonkeyGo/errors"
-	"github.com/SpaceMonkeyGo/monotime"
+	"github.com/spacemonkeygo/errors"
+	"github.com/spacemonkeygo/monotime"
 )
 
 const (

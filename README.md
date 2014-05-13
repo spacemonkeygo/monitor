@@ -1,6 +1,6 @@
 # monitor
 
-Please see http://godoc.org/github.com/SpaceMonkeyGo/monitor for info
+Please see http://godoc.org/github.com/spacemonkeygo/monitor for info
 
 ### License
 

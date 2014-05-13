@@ -17,7 +17,7 @@ package monitor
 import (
 	"fmt"
 
-	"github.com/SpaceMonkeyGo/crc"
+	"github.com/spacemonkeygo/crc"
 )
 
 // MonitorFunc assists in Monitor interface instances

@@ -19,7 +19,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/SpaceMonkeyGo/spacelog"
+	"github.com/spacemonkeygo/spacelog"
 )
 
 var (

@@ -21,8 +21,8 @@ import (
 	"runtime"
 	"syscall"
 
-	"github.com/SpaceMonkeyGo/crc"
-	"github.com/SpaceMonkeyGo/monotime"
+	"github.com/spacemonkeygo/crc"
+	"github.com/spacemonkeygo/monotime"
 )
 
 var (

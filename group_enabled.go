@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/SpaceMonkeyGo/errors"
+	"github.com/spacemonkeygo/errors"
 )
 
 // Stats conforms to the Monitor interface. Stats aggregates all statistics
@@ -65,7 +65,7 @@ func (g *MonitorGroup) Datapoints(reset bool, cb func(name string,
 // example.
 //
 // N.B.: Error types are best tracked when you're using Space Monkey's
-// hierarchical error package: http://github.com/SpaceMonkeyGo/errors
+// hierarchical error package: http://github.com/spacemonkeygo/errors
 func (self *MonitorGroup) Task() func(*error) {
 	caller_name := CallerName()
 	idx := strings.LastIndex(caller_name, "/")

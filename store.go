@@ -15,8 +15,8 @@
 package monitor
 
 import (
-	"github.com/SpaceMonkeyGo/errors"
-	"github.com/SpaceMonkeyGo/monitor/utils"
+	"github.com/spacemonkeygo/errors"
+	"github.com/spacemonkeygo/monitor/utils"
 )
 
 // MonitorStore is a collection of package-level MonitorGroups. There is

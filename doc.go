@@ -23,7 +23,7 @@ A motivating example:
 	import (
 		"net/http"
 
-		"github.com/SpaceMonkeyGo/monitor"
+		"github.com/spacemonkeygo/monitor"
 	)
 
 	var (
