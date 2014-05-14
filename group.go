@@ -18,6 +18,11 @@ import (
 	"github.com/spacemonkeygo/monitor/utils"
 )
 
+var (
+	DefaultCollectionFraction = .1  // The fraction of datapoints to collect
+	DefaultCollectionMax      = 500 // The max datapoints to collect
+)
+
 // MonitorGroup is a collection of named Monitor interfaces and DataCollector
 // interfaces. They are automatically created by various calls on the
 // MonitorGroup

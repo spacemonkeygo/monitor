@@ -136,8 +136,9 @@ func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
 	}
 	if err != nil {
 		error_name = errors.GetClass(err).String()
-		if len(error_name) > *maxErrorLength {
-			error_name = error_name[:*maxErrorLength]
+		max_len := MaxErrorLength
+		if len(error_name) > max_len {
+			error_name = error_name[:max_len]
 		}
 		error_name = SanitizeName(error_name)
 	}

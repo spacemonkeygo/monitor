@@ -15,16 +15,8 @@
 package monitor
 
 import (
-	"flag"
 	"math/rand"
 	"sync"
-)
-
-var (
-	collectionFraction = flag.Float64("monitor.datapoint_collection_fraction", .1,
-		"The fraction of datapoints to collect")
-	collectionMax = flag.Int("monitor.datapoint_collection_max", 500,
-		"The max datapoints to collect")
 )
 
 // DatapointCollector collects a set of datapoints

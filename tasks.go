@@ -15,13 +15,11 @@
 package monitor
 
 import (
-	"flag"
 	"sync"
 )
 
 var (
-	maxErrorLength = flag.Int("monitor.max_error_length", 40,
-		"the max length for an error name")
+	MaxErrorLength = 40 // the max length for an error name
 )
 
 // TaskMonitor is a type for keeping track of tasks. A TaskMonitor will keep
