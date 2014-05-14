@@ -1,4 +1,4 @@
-# monitor
+# monitor [![Build Status](https://api.travis-ci.org/spacemonkeygo/monitor.svg?branch=master)](https://travis-ci.org/spacemonkeygo/monitor)
 
 Please see http://godoc.org/github.com/spacemonkeygo/monitor for info
 
