@@ -121,8 +121,8 @@ func (self *MonitorGroup) Data(name string, val ...float64) {
 	name = SanitizeName(name)
 	monitor, err := self.collectors.Get(name, func(_ interface{}) (interface{},
 		error) {
-		return NewDatapointCollector(DefaultCollectionFraction,
-			DefaultCollectionMax), nil
+		return NewDatapointCollector(Config.DefaultCollectionFraction,
+			Config.DefaultCollectionMax), nil
 	})
 	if err != nil {
 		handleError(err)

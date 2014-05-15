@@ -14,24 +14,15 @@
 
 package monitor
 
-import (
-	"github.com/spacemonkeygo/monitor/utils"
-)
-
-// MonitorGroup is a collection of named Monitor interfaces and DataCollector
-// interfaces. They are automatically created by various calls on the
-// MonitorGroup
-type MonitorGroup struct {
-	group_name string
-	monitors   *utils.ThreadsafeCache
-	collectors *utils.ThreadsafeCache
-}
-
-// NewMonitorGroup makes a new MonitorGroup unattached to anything.
-func NewMonitorGroup(name string) *MonitorGroup {
-	return &MonitorGroup{
-		group_name: SanitizeName(name),
-		monitors:   utils.NewThreadsafeCache(),
-		collectors: utils.NewThreadsafeCache(),
-	}
+// Config is a configuration struct meant to be used with
+//   github.com/spacemonkeygo/flagfile/utils.Setup
+// but can be set independently.
+var Config = struct {
+	DefaultCollectionFraction float64 `default:".1" usage:"The fraction of datapoints to collect"`
+	DefaultCollectionMax      int     `default:"500" usage:"The max datapoints to collect"`
+	MaxErrorLength            int     `default:"40" usage:"the max length for an error name"`
+}{
+	DefaultCollectionFraction: .1,
+	DefaultCollectionMax:      500,
+	MaxErrorLength:            40,
 }

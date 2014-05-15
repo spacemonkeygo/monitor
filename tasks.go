@@ -18,10 +18,6 @@ import (
 	"sync"
 )
 
-var (
-	MaxErrorLength = 40 // the max length for an error name
-)
-
 // TaskMonitor is a type for keeping track of tasks. A TaskMonitor will keep
 // track of the current number of tasks, the highwater number (the maximum
 // amount of concurrent tasks), the total started, the total completed, the
