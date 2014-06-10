@@ -137,9 +137,9 @@ func (self *MonitorGroup) Data(name string, val ...float64) {
 	datapoint_collector.Add(val...)
 }
 
-// ScopedEvent simply calls Event after adding a prefix to the name based on
+// Event simply calls EventNamed after adding a prefix to the name based on
 // the caller.
-func (self *MonitorGroup) ScopedEvent(name string) {
+func (self *MonitorGroup) Event(name string) {
 	caller_name := CallerName()
 	idx := strings.LastIndex(caller_name, "/")
 	if idx >= 0 {
@@ -149,12 +149,12 @@ func (self *MonitorGroup) ScopedEvent(name string) {
 	if idx >= 0 {
 		caller_name = caller_name[idx+1:]
 	}
-	self.Event(caller_name + "." + name)
+	self.EventNamed(caller_name + "." + name)
 }
 
 // Event creates an EventMonitor by the given name if one doesn't exist and
 // adds an event to it.
-func (self *MonitorGroup) Event(name string) {
+func (self *MonitorGroup) EventNamed(name string) {
 	name = SanitizeName(name)
 	monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{},
 		error) {
