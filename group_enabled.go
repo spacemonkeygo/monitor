@@ -152,8 +152,8 @@ func (self *MonitorGroup) Event(name string) {
 	self.EventNamed(caller_name + "." + name)
 }
 
-// Event creates an EventMonitor by the given name if one doesn't exist and
-// adds an event to it.
+// EventNamed creates an EventMonitor by the given name if one doesn't exist
+// and adds an event to it.
 func (self *MonitorGroup) EventNamed(name string) {
 	name = SanitizeName(name)
 	monitor, err := self.monitors.Get(name, func(_ interface{}) (interface{},
