@@ -19,7 +19,6 @@ import (
 	"io"
 	"os"
 	"runtime"
-	"syscall"
 
 	"github.com/spacemonkeygo/crc"
 	"github.com/spacemonkeygo/monotime"
@@ -75,16 +74,7 @@ func (store *MonitorStore) RegisterEnvironment() {
 			MonitorStruct(RuntimeInternals(), cb)
 		}))
 
-	group.Chain("rusage", MonitorFunc(
-		func(cb func(name string, val float64)) {
-			var rusage syscall.Rusage
-			err := syscall.Getrusage(syscall.RUSAGE_SELF, &rusage)
-			if err != nil {
-				logger.Errorf("failed getting rusage data: %s", err)
-				return
-			}
-			MonitorStruct(&rusage, cb)
-		}))
+	registerPlatformEnvironment(group)
 }
 
 // SchedulerTrace collects the output of the standard scheduler trace debug
