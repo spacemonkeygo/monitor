@@ -12,23 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build !windows
-// +build !linux
-// +build !darwin
-
 package monitor
 
 import (
 	"os"
+	"syscall"
 )
 
-func registerPlatformEnvironment(*MonitorGroup) {
-}
-
-func openProc() (*os.File, error) {
-	return nil, os.ErrNotExist
+func registerPlatformEnvironment(group *MonitorGroup) {
+	group.Chain("rusage", MonitorFunc(
+		func(cb func(name string, val float64)) {
+			var rusage syscall.Rusage
+			err := syscall.Getrusage(syscall.RUSAGE_SELF, &rusage)
+			if err != nil {
+				logger.Errorf("failed getting rusage data: %s", err)
+				return
+			}
+			MonitorStruct(&rusage, cb)
+		}))
 }
 
 func fdCount() (count int, err error) {
 	return 0, nil
+}
+
+func openProc() (*os.File, error) {
+	return nil, os.ErrNotExist
 }
