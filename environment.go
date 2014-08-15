@@ -17,7 +17,6 @@ package monitor
 import (
 	"fmt"
 	"io"
-	"os"
 	"runtime"
 
 	"github.com/spacemonkeygo/crc"
@@ -118,21 +117,7 @@ func RuntimeInternals() (rv InternalStats) {
 
 // FdCount counts how many open file descriptors there are.
 func FdCount() (count int, err error) {
-	f, err := os.Open("/proc/self/fd")
-	if err != nil {
-		return 0, err
-	}
-	defer f.Close()
-	for {
-		names, err := f.Readdirnames(4096)
-		count += len(names)
-		if err != nil {
-			if err == io.EOF {
-				return count, nil
-			}
-			return count, err
-		}
-	}
+	return fdCount()
 }
 
 type writerFunc func(p []byte) (n int, err error)
@@ -140,7 +125,7 @@ type writerFunc func(p []byte) (n int, err error)
 func (f writerFunc) Write(p []byte) (n int, err error) { return f(p) }
 
 func ProcessCRC() (uint32, error) {
-	fh, err := os.Open("/proc/self/exe")
+	fh, err := openProc()
 	if err != nil {
 		return 0, err
 	}

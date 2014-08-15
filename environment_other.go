@@ -12,9 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !windows
 // +build !linux
 
 package monitor
 
+import (
+	"os"
+)
+
 func registerPlatformEnvironment(*MonitorGroup) {
+}
+
+func openProc() (*os.File, error) {
+	return nil, os.ErrNotExist
+}
+
+func fdCount() (count int, err error) {
+	return 0, nil
 }

@@ -15,6 +15,7 @@
 package monitor
 
 import (
+	"os"
 	"syscall"
 )
 
@@ -29,4 +30,26 @@ func registerPlatformEnvironment(group *MonitorGroup) {
 			}
 			MonitorStruct(&rusage, cb)
 		}))
+}
+
+func fdCount() (count int, err error) {
+	f, err := os.Open("/proc/self/fd")
+	if err != nil {
+		return 0, err
+	}
+	defer f.Close()
+	for {
+		names, err := f.Readdirnames(4096)
+		count += len(names)
+		if err != nil {
+			if err == io.EOF {
+				return count, nil
+			}
+			return count, err
+		}
+	}
+}
+
+func openProc() (*os.File, error) {
+	return os.Open("/proc/self/exe")
 }
