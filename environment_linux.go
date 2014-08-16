@@ -15,6 +15,7 @@
 package monitor
 
 import (
+	"io"
 	"os"
 	"syscall"
 )
