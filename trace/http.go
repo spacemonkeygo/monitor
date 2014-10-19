@@ -22,7 +22,6 @@ import (
 
 	"code.google.com/p/go.net/context"
 	"github.com/spacemonkeygo/errors"
-	"github.com/spacemonkeygo/monitor/trace/gen-go/zipkin"
 )
 
 // client stuff -----
@@ -36,7 +35,7 @@ type Client interface {
 // request and sending the Span in the HTTP request headers.
 // Compare to http.Client.Do.
 func (m *SpanManager) TraceRequest(ctx context.Context, cl Client,
-	req *http.Request, service *zipkin.Endpoint) (
+	req *http.Request) (
 	resp *http.Response, err error) {
 	name := fmt.Sprintf("%s %s", req.Method, req.URL.String())
 	s, ok := SpanFromContext(ctx)
@@ -45,8 +44,8 @@ func (m *SpanManager) TraceRequest(ctx context.Context, cl Client,
 	} else {
 		s = m.NewTrace(name)
 	}
-	complete := s.ObserveService(service)
-	s.Annotate("http.uri", req.URL.String(), service)
+	complete := s.Observe()
+	s.Annotate("http.uri", req.URL.String(), nil)
 	s.Request().SetHeader(req.Header)
 	resp, err = func() (resp *http.Response, err error) {
 		defer errors.CatchPanic(&err)
@@ -56,7 +55,7 @@ func (m *SpanManager) TraceRequest(ctx context.Context, cl Client,
 		complete(&err)
 		return resp, err
 	}
-	s.Annotate("http.responsecode", int64(resp.StatusCode), service)
+	s.Annotate("http.responsecode", int64(resp.StatusCode), nil)
 	current_body := resp.Body
 	resp.Body = &wrappedBody{
 		body:  current_body,

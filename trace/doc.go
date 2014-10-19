@@ -42,8 +42,7 @@ Here's an example client:
     if err != nil {
       return err
     }
-    resp, err := trace.TraceRequest(ctx, http.DefaultClient, req,
-        &zipkin.Endpoint{ServiceName: "external service"})
+    resp, err := trace.TraceRequest(ctx, http.DefaultClient, req)
     if err != nil {
       return err
     }

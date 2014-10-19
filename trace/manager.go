@@ -17,6 +17,7 @@ package trace
 import (
 	"sync"
 
+	"code.google.com/p/go.net/context"
 	"github.com/spacemonkeygo/monitor/trace/gen-go/zipkin"
 )
 
@@ -152,8 +153,12 @@ var (
 	NewSpanFromRequest     = DefaultManager.NewSpanFromRequest
 	NewTrace               = DefaultManager.NewTrace
 	RegisterTraceCollector = DefaultManager.RegisterTraceCollector
-	Trace                  = DefaultManager.Trace
 	TraceHandler           = DefaultManager.TraceHandler
 	TraceRequest           = DefaultManager.TraceRequest
 	TraceWithSpanNamed     = DefaultManager.TraceWithSpanNamed
 )
+
+// Trace calls Trace on the DefaultManager
+func Trace(ctx *context.Context) func(*error) {
+	return DefaultManager.TraceWithSpanNamed(ctx, CallerName())
+}
