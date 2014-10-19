@@ -107,6 +107,12 @@ subcalls, for if they have their own spans.
 If you don't like the automatic Span naming, you can use TraceWithSpanName
 instead.
 
+Process setup
+
+Every process that sends Spans will need to be configured with Configure and
+RegisterTraceCollector, so make sure to call those functions appropriately
+early in your process lifetime.
+
 Other
 
 See https://github.com/itszero/docker-zipkin for easy Zipkin setup.
