@@ -15,7 +15,6 @@
 package trace
 
 import (
-	"math/rand"
 	"sync"
 
 	"github.com/spacemonkeygo/monitor/trace/gen-go/zipkin"
@@ -76,7 +75,7 @@ func (m *SpanManager) RegisterTraceCollector(collector TraceCollector) {
 // span of the trace, and debug controls whether or not the span collector is
 // allowed to sample the trace on its own.
 func (m *SpanManager) NewSampledTrace(span_name string, debug bool) *Span {
-	trace_id := rand.Int63() + 1
+	trace_id := Rng.Int63() + 1
 	return &Span{
 		data: zipkin.Span{
 			TraceId: trace_id,
@@ -95,7 +94,7 @@ func (m *SpanManager) NewTrace(span_name string) *Span {
 	trace_fraction := m.trace_fraction
 	trace_debug := m.trace_debug
 	m.mtx.Unlock()
-	if rand.Float64() >= trace_fraction {
+	if Rng.Float64() >= trace_fraction {
 		return NewDisabledTrace()
 	}
 	return m.NewSampledTrace(span_name, trace_debug)

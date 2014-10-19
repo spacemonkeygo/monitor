@@ -15,7 +15,6 @@
 package trace
 
 import (
-	"math/rand"
 	"sync"
 	"time"
 
@@ -125,7 +124,7 @@ func (parent *Span) NewSpan(name string) *Span {
 		data: zipkin.Span{
 			TraceId:  parent.data.TraceId,
 			Name:     name,
-			Id:       rand.Int63() + 1,
+			Id:       Rng.Int63() + 1,
 			ParentId: &parent.data.Id,
 			Debug:    parent.data.Debug},
 		manager: parent.manager}
