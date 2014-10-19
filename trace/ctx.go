@@ -18,7 +18,6 @@ import (
 	"fmt"
 
 	"code.google.com/p/go.net/context"
-	"github.com/spacemonkeygo/monitor"
 )
 
 type ctxKey int
@@ -56,8 +55,8 @@ func getSpan(ctx context.Context) (s *Span, ctx_to_wrap context.Context) {
 	return nil, ctx
 }
 
-// TraceWithSpanName is like Trace, except you get to pick the Span name.
-func (m *SpanManager) TraceWithSpanName(
+// TraceWithSpanNamed is like Trace, except you get to pick the Span name.
+func (m *SpanManager) TraceWithSpanNamed(
 	ctx *context.Context, name string) func(*error) {
 	parent, parent_ctx := getSpan(*ctx)
 	if parent == nil {
@@ -83,7 +82,7 @@ func (m *SpanManager) TraceWithSpanName(
 // a function call context. The name of the Span is pulled from the current
 // function name. See the example for usage.
 func (m *SpanManager) Trace(ctx *context.Context) func(*error) {
-	return m.TraceWithSpanName(ctx, monitor.CallerName())
+	return m.TraceWithSpanNamed(ctx, CallerName())
 }
 
 // ContextWithSpan creates a new Context with the provided Span set as the

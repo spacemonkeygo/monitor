@@ -15,10 +15,9 @@
 package monitor
 
 import (
-	"runtime"
 	"sort"
-	"strings"
 
+	"github.com/spacemonkeygo/monitor/trace"
 	"github.com/spacemonkeygo/spacelog"
 )
 
@@ -28,11 +27,11 @@ var (
 	// interesting to you.
 	DefaultStore = NewMonitorStore()
 
-	// IgnoredPrefixes is a list of prefixes to ignore when performing automatic
-	// name generation.
-	IgnoredPrefixes []string
-
 	logger = spacelog.GetLogger()
+
+	CallerName             = trace.CallerName
+	PackageName            = trace.PackageName
+	AddIgnoredCallerPrefix = trace.AddIgnoredCallerPrefix
 )
 
 // Monitor is the basic key/value interface. Anything that implements the
@@ -54,47 +53,6 @@ type DataCollection interface {
 	// stream random sampling, and the fraction of data points collectoed.
 	Datapoints(reset bool, cb func(name string, data [][]float64, total uint64,
 		clipped bool, fraction float64))
-}
-
-// CallerName returns the name of the caller two frames up the stack.
-func CallerName() string {
-	pc, _, _, ok := runtime.Caller(2)
-	if !ok {
-		return "unknown.unknown"
-	}
-	f := runtime.FuncForPC(pc)
-	if f == nil {
-		return "unknown.unknown"
-	}
-	name := f.Name()
-	for _, prefix := range IgnoredPrefixes {
-		name = strings.TrimPrefix(name, prefix)
-	}
-	return name
-}
-
-// PackageName returns the name of the package of the caller two frames up
-// the stack.
-func PackageName() string {
-	pc, _, _, ok := runtime.Caller(2)
-	if !ok {
-		return "unknown"
-	}
-	f := runtime.FuncForPC(pc)
-	if f == nil {
-		return "unknown"
-	}
-	name := f.Name()
-	for _, prefix := range IgnoredPrefixes {
-		name = strings.TrimPrefix(name, prefix)
-	}
-	return name
-
-	idx := strings.Index(name, ".")
-	if idx >= 0 {
-		name = name[:idx]
-	}
-	return name
 }
 
 func handleError(err error) {

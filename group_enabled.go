@@ -20,7 +20,9 @@ import (
 	"fmt"
 	"strings"
 
+	"code.google.com/p/go.net/context"
 	"github.com/spacemonkeygo/errors"
+	"github.com/spacemonkeygo/monitor/trace"
 )
 
 // Stats conforms to the Monitor interface. Stats aggregates all statistics
@@ -234,4 +236,43 @@ func (self *MonitorGroup) Chain(name string, other Monitor) {
 		return
 	}
 	chain_monitor.Set(other)
+}
+
+// TracedTask creates a Task and also uses
+// github.com/spacemonkeygo/monitor/trace's Trace function to Trace the given
+// function. Currently only uses the default tracing SpanManager
+func (self *MonitorGroup) TracedTask(ctx *context.Context) func(*error) {
+	caller_name := CallerName()
+	trace_caller_name := caller_name
+	idx := strings.LastIndex(caller_name, "/")
+	if idx >= 0 {
+		caller_name = caller_name[idx+1:]
+	}
+	idx = strings.Index(caller_name, ".")
+	if idx >= 0 {
+		caller_name = caller_name[idx+1:]
+	}
+	task_defer := self.TaskNamed(caller_name)
+	trace_defer := trace.TraceWithSpanNamed(ctx, trace_caller_name)
+
+	return func(errptr *error) {
+		rec := recover()
+		var err_to_consider error
+		if errptr != nil {
+			err_to_consider = *errptr
+		}
+		if rec != nil {
+			err, ok := rec.(error)
+			if ok {
+				err_to_consider = errors.PanicError.Wrap(err)
+			} else {
+				err_to_consider = errors.PanicError.New("%v", rec)
+			}
+		}
+		task_defer(&err_to_consider)
+		trace_defer(&err_to_consider)
+		if rec != nil {
+			panic(rec)
+		}
+	}
 }

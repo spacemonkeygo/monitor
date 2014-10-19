@@ -16,6 +16,10 @@
 
 package monitor
 
+import (
+	"code.google.com/p/go.net/context"
+)
+
 func (g *MonitorGroup) Stats(cb func(name string, val float64)) {}
 
 func (g *MonitorGroup) Datapoints(reset bool, cb func(name string,
@@ -33,5 +37,9 @@ func (self *MonitorGroup) Task() func(*error)     { return func(*error) {} }
 func (self *MonitorGroup) DataTask() func(*error) { return func(*error) {} }
 
 func (self *MonitorGroup) TaskNamed(name string) func(*error) {
+	return func(*error) {}
+}
+
+func (self *MonitorGroup) TracedTask(*context.Context) func(*error) {
 	return func(*error) {}
 }

@@ -156,5 +156,5 @@ var (
 	Trace                  = DefaultManager.Trace
 	TraceHandler           = DefaultManager.TraceHandler
 	TraceRequest           = DefaultManager.TraceRequest
-	TraceWithSpanName      = DefaultManager.TraceWithSpanName
+	TraceWithSpanNamed     = DefaultManager.TraceWithSpanNamed
 )
