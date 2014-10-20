@@ -55,7 +55,7 @@ func (m *SpanManager) TraceRequest(ctx context.Context, cl Client,
 		complete(&err)
 		return resp, err
 	}
-	s.Annotate("http.responsecode", int64(resp.StatusCode), nil)
+	s.Annotate("http.responsecode", fmt.Sprint(resp.StatusCode), nil)
 	current_body := resp.Body
 	resp.Body = &wrappedBody{
 		body:  current_body,
