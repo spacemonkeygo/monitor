@@ -15,8 +15,9 @@
 package monitor
 
 import (
-	"math/rand"
 	"sync"
+
+	"github.com/spacemonkeygo/monitor/trace"
 )
 
 // DatapointCollector collects a set of datapoints
@@ -50,13 +51,13 @@ func (d *DatapointCollector) Add(val ...float64) {
 
 	d.total += 1
 
-	if rand.Float64() >= d.collection_fraction {
+	if trace.Rng.Float64() >= d.collection_fraction {
 		return
 	}
 
 	d.considered_total += 1
 	if d.clipped {
-		r := rand.Intn(d.considered_total)
+		r := trace.Rng.Intn(d.considered_total)
 		if r < len(d.dataset) {
 			d.dataset[r] = val
 		}
