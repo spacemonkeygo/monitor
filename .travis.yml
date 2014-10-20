@@ -4,3 +4,6 @@ go:
   - 1.2
   - release
   - tip
+
+script: go test -v . ./trace/... ./utils
+install: go get -d -v . ./trace/... ./utils && go build -v . ./trace/... ./utils
