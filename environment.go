@@ -15,7 +15,6 @@
 package monitor
 
 import (
-	"fmt"
 	"io"
 	"runtime"
 
@@ -74,45 +73,6 @@ func (store *MonitorStore) RegisterEnvironment() {
 		}))
 
 	registerPlatformEnvironment(group)
-}
-
-// SchedulerTrace collects the output of the standard scheduler trace debug
-// output line
-func SchedulerTrace(out []byte, detailed bool) (n int) {
-	var rv int32
-	schedTrace(out, detailed, &rv)
-	return int(rv)
-}
-
-// InternalStats represents the data typically displayed in a scheduler trace.
-type InternalStats struct {
-	GoMaxProcs  int32
-	IdleProcs   int32
-	ThreadCount int32
-	IdleThreads int32
-	RunQueue    int32
-}
-
-func schedTrace(b []byte, detailed bool, n *int32)
-
-func schedTraceData(stats *InternalStats) {
-	var data [256]byte
-	SchedulerTrace(data[:], false)
-	var uptime int64
-	n, err := fmt.Sscanf(string(data[:]),
-		"SCHED %dms: gomaxprocs=%d idleprocs=%d threads=%d idlethreads=%d "+
-			"runqueue=%d", &uptime, &stats.GoMaxProcs, &stats.IdleProcs,
-		&stats.ThreadCount, &stats.IdleThreads, &stats.RunQueue)
-	if err != nil || n != 6 {
-		logger.Errorf("failed getting runtime data from scheduler trace: %v, %d",
-			err, n)
-	}
-}
-
-// RuntimeInternals parses a scheduler trace line into an InternalStats struct
-func RuntimeInternals() (rv InternalStats) {
-	schedTraceData(&rv)
-	return rv
 }
 
 // FdCount counts how many open file descriptors there are.
