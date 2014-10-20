@@ -31,6 +31,14 @@ See http://blog.golang.org/context for more information there, but essentially
 this library works best if you are already passing Context objects through most
 of your callstacks.
 
+Full example
+
+See https://github.com/jtolds/go-zipkin-sample for a set of toy example
+programs that use this library, or 
+https://raw.githubusercontent.com/jtolds/go-zipkin-sample/master/screenshot.png
+for a screen shot of the Zipkin user interface after collecting a trace
+from the sample application.
+
 Basic usage
 
 At a basic level, all you need to do to use this library to interface with
@@ -110,11 +118,6 @@ subcalls, for if they have their own spans.
 
 If you don't like the automatic Span naming, you can use TraceWithSpanNamed
 instead.
-
-Full example
-
-See https://github.com/jtolds/go-zipkin-sample for a set of toy example
-programs that use this library.
 
 Process setup
 
