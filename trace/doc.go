@@ -111,6 +111,11 @@ subcalls, for if they have their own spans.
 If you don't like the automatic Span naming, you can use TraceWithSpanNamed
 instead.
 
+Full example
+
+See https://github.com/jtolds/go-zipkin-sample for a set of toy example
+programs that use this library.
+
 Process setup
 
 Every process that sends Spans will need to be configured with Configure and
