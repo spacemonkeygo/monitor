@@ -57,9 +57,13 @@ And an example server:
     return http.ListenAndServe(addr, trace.ContextWrapper(
         trace.TraceHandler(trace.ContextHTTPHandlerFunc(
         func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+          MyOperation(ctx)
           fmt.Fprintf(w, "hello\n")
         }))))
   }
+
+It is important that the context objects are passed all the way through your
+application logic from server to client to get the full effect.
 
 In-process tracing
 
@@ -103,7 +107,7 @@ if it had a non-nil error or had a panic, what the error type was (if
 github.com/spacemonkeygo/errors can identify it), and pass the Span along to
 subcalls, for if they have their own spans.
 
-If you don't like the automatic Span naming, you can use TraceWithSpanName
+If you don't like the automatic Span naming, you can use TraceWithSpanNamed
 instead.
 
 Process setup
