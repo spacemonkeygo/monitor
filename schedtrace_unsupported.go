@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build go1.4
+// +build go1.4 tip
 
 package monitor
 

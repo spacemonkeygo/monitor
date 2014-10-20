@@ -13,6 +13,7 @@
 // limitations under the License.
 
 // +build !go1.4
+// +build !tip
 
 package monitor
 
