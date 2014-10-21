@@ -108,13 +108,16 @@ func (m *SpanManager) NewSpanFromRequest(name string, req Request) *Span {
 		return NewDisabledTrace()
 	}
 
-	if req.TraceId == nil || req.SpanId == nil {
-		return m.NewTrace(name)
-	}
-
 	flags := int64(0)
 	if req.Flags != nil {
 		flags = *req.Flags
+	}
+
+	if req.TraceId == nil || req.SpanId == nil {
+		if req.Sampled != nil {
+			return m.NewSampledTrace(name, flags&1 > 0)
+		}
+		return m.NewTrace(name)
 	}
 
 	return &Span{
