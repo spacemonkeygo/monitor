@@ -57,6 +57,9 @@ func (s *Span) Debug() bool { return s.data.Debug }
 // host are optional.
 func (s *Span) AnnotateTimestamp(key string, now time.Time,
 	duration *time.Duration, host *zipkin.Endpoint) {
+	if s.disabled {
+		return
+	}
 	var duration_int32_ptr *int32
 	if duration != nil {
 		duration_int32 := int32(int64(*duration) / 1000)
@@ -77,6 +80,9 @@ func (s *Span) AnnotateTimestamp(key string, now time.Time,
 // Annotate annotates a given span with an arbitrary value. host is optional.
 // Annotate is a no-op unless val is of type time.Time, []byte, or string.
 func (s *Span) Annotate(key string, val interface{}, host *zipkin.Endpoint) {
+	if s.disabled {
+		return
+	}
 	var serialized []byte
 	var serialized_type zipkin.AnnotationType
 	switch v := val.(type) {
@@ -162,6 +168,9 @@ func (s *Span) Observe() func(errptr *error) {
 // ObserveService is like Observe, but uses a provided host instead of the
 // SpanManager's default local host for annotations.
 func (s *Span) ObserveService(service *zipkin.Endpoint) func(errptr *error) {
+	if s.disabled {
+		return func(*error) {}
+	}
 	if s.server {
 		s.AnnotateTimestamp(zipkin.SERVER_RECV, monotime.Now(), nil, service)
 	} else {
