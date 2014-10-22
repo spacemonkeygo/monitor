@@ -37,12 +37,11 @@ type Client interface {
 func (m *SpanManager) TraceRequest(ctx context.Context, cl Client,
 	req *http.Request) (
 	resp *http.Response, err error) {
-	name := fmt.Sprintf("%s %s", req.Method, req.URL.String())
 	s, ok := SpanFromContext(ctx)
 	if ok {
-		s = s.NewSpan(name)
+		s = s.NewSpan(req.Method)
 	} else {
-		s = m.NewTrace(name)
+		s = m.NewTrace(req.Method)
 	}
 	complete := s.Observe()
 	s.Annotate("http.uri", req.URL.String(), nil)
@@ -90,8 +89,7 @@ func (w *wrappedBody) Read(p []byte) (n int, err error) {
 func (m *SpanManager) TraceHandler(c ContextHTTPHandler) ContextHTTPHandler {
 	return ContextHTTPHandlerFunc(func(
 		ctx context.Context, w http.ResponseWriter, r *http.Request) {
-		name := fmt.Sprintf("%s %s", r.Method, r.RequestURI)
-		s := m.NewSpanFromRequest(name, RequestFromHeader(r.Header))
+		s := m.NewSpanFromRequest(r.Method, RequestFromHeader(r.Header))
 		defer s.Observe()(nil)
 		s.Annotate("http.uri", r.RequestURI, nil)
 		wrapped := &responseWriterObserver{w: w}
