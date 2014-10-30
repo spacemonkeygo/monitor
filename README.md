@@ -4,7 +4,7 @@ Please see http://godoc.org/github.com/spacemonkeygo/monitor for info
 
 ### License
 
-Copyright (C) 2014 Space Monkey, Inc.
+Copyright (C) 2014 The Monitor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
