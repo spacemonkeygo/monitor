@@ -18,7 +18,7 @@ import (
 	"testing"
 )
 
-func TestReadProcStatSelf(t *testing.T) {
+func TestReadProcSelfStat(t *testing.T) {
 	var stat procSelfStat
 	err := readProcSelfStat(&stat)
 	if err != nil {
@@ -28,6 +28,23 @@ func TestReadProcStatSelf(t *testing.T) {
 	MonitorStruct(&stat, func(key string, val float64) { data[key] = val })
 
 	for _, key := range []string{"Blocked", "Endcode", "Nice", "Vsize", "Rss"} {
+		_, exists := data[key]
+		if !exists {
+			t.Fatalf("%s doesn't exist", key)
+		}
+	}
+}
+
+func TestReadProcSelfStatm(t *testing.T) {
+	var stat procSelfStatm
+	err := readProcSelfStatm(&stat)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data := make(map[string]float64)
+	MonitorStruct(&stat, func(key string, val float64) { data[key] = val })
+
+	for _, key := range []string{"Size", "Resident", "Lib", "Text"} {
 		_, exists := data[key]
 		if !exists {
 			t.Fatalf("%s doesn't exist", key)

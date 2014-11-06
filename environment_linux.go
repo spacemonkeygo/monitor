@@ -35,12 +35,22 @@ func registerPlatformEnvironment(group *MonitorGroup) {
 			}
 			MonitorStruct(&rusage, cb)
 		}))
-	group.Chain("proc_self_stat", MonitorFunc(
+	group.Chain("proc.stat", MonitorFunc(
 		func(cb func(name string, val float64)) {
 			var stat procSelfStat
 			err := readProcSelfStat(&stat)
 			if err != nil {
 				logger.Errorf("failed getting /proc/self/stat data: %s", err)
+				return
+			}
+			MonitorStruct(&stat, cb)
+		}))
+	group.Chain("proc.statm", MonitorFunc(
+		func(cb func(name string, val float64)) {
+			var stat procSelfStatm
+			err := readProcSelfStatm(&stat)
+			if err != nil {
+				logger.Errorf("failed getting /proc/self/statm data: %s", err)
 				return
 			}
 			MonitorStruct(&stat, cb)
@@ -131,5 +141,25 @@ func readProcSelfStat(s *procSelfStat) error {
 		&s.Kstkesp, &s.Kstkeip, &s.Signal, &s.Blocked, &s.Sigignore, &s.Sigcatch,
 		&s.Wchan, &s.Nswap, &s.Cnswap, &s.ExitSignal, &s.Processor, &s.RtPriority,
 		&s.Policy, &s.DelayAcctBlkioTicks, &s.GuestTime, &s.CguestTime)
+	return err
+}
+
+type procSelfStatm struct {
+	Size     int
+	Resident int
+	Share    int
+	Text     int
+	Lib      int
+	Data     int
+	Dt       int
+}
+
+func readProcSelfStatm(s *procSelfStatm) error {
+	data, err := ioutil.ReadFile("/proc/self/statm")
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Sscanf(string(data), "%d %d %d %d %d %d %d", &s.Size,
+		&s.Resident, &s.Share, &s.Text, &s.Lib, &s.Data, &s.Dt)
 	return err
 }
