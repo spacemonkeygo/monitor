@@ -41,15 +41,15 @@ type HeaderSetter interface {
 // RequestFromHeader will create a Request object given an http.Header or
 // anything that matches the HeaderGetter interface.
 func RequestFromHeader(header HeaderGetter) (rv Request) {
-	trace_id, err := strconv.ParseInt(header.Get("X-B3-TraceId"), 16, 64)
+	trace_id, err := fromHeader(header.Get("X-B3-TraceId"))
 	if err == nil {
 		rv.TraceId = &trace_id
 	}
-	span_id, err := strconv.ParseInt(header.Get("X-B3-SpanId"), 16, 64)
+	span_id, err := fromHeader(header.Get("X-B3-SpanId"))
 	if err == nil {
 		rv.SpanId = &span_id
 	}
-	parent_id, err := strconv.ParseInt(header.Get("X-B3-ParentSpanId"), 16, 64)
+	parent_id, err := fromHeader(header.Get("X-B3-ParentSpanId"))
 	if err == nil {
 		rv.ParentId = &parent_id
 	}
@@ -58,7 +58,7 @@ func RequestFromHeader(header HeaderGetter) (rv Request) {
 		sampled = true
 	}
 	rv.Sampled = &sampled
-	flags, err := strconv.ParseInt(header.Get("X-B3-Flags"), 16, 64)
+	flags, err := fromHeader(header.Get("X-B3-Flags"))
 	if err != nil {
 		flags = 0
 	}
@@ -70,18 +70,29 @@ func RequestFromHeader(header HeaderGetter) (rv Request) {
 // matches the HeaderSetter interface.
 func (r Request) SetHeader(header HeaderSetter) {
 	if r.TraceId != nil {
-		header.Set("X-B3-TraceId", strconv.FormatInt(*r.TraceId, 16))
+		header.Set("X-B3-TraceId", toHeader(*r.TraceId))
 	}
 	if r.SpanId != nil {
-		header.Set("X-B3-SpanId", strconv.FormatInt(*r.SpanId, 16))
+		header.Set("X-B3-SpanId", toHeader(*r.SpanId))
 	}
 	if r.ParentId != nil {
-		header.Set("X-B3-ParentSpanId", strconv.FormatInt(*r.ParentId, 16))
+		header.Set("X-B3-ParentSpanId", toHeader(*r.ParentId))
 	}
 	if r.Sampled != nil {
 		header.Set("X-B3-Sampled", strconv.FormatBool(*r.Sampled))
 	}
 	if r.Flags != nil {
-		header.Set("X-B3-Flags", strconv.FormatInt(*r.Flags, 16))
+		header.Set("X-B3-Flags", toHeader(*r.Flags))
 	}
+}
+
+// fromHeader reads a signed int64 that has been formatted as a hex uint64
+func fromHeader(s string) (int64, error) {
+	v, err := strconv.ParseUint(s, 16, 64)
+	return int64(v), err
+}
+
+// toHeader writes a signed int64 as hex uint64
+func toHeader(i int64) string {
+	return strconv.FormatUint(uint64(i), 16)
 }
