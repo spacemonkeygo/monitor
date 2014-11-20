@@ -41,6 +41,11 @@ type Monitor interface {
 	Stats(cb func(name string, val float64))
 }
 
+// RunningTasksCollector keeps track of tasks that are currently in process.
+type RunningTasksCollector interface {
+	Running(cb func(name string, current []*TaskCtx))
+}
+
 // DataCollection is the basic key/vector interface. Anything that implements
 // the DataCollection interface can be connected to the monitor system for
 // later processing.
@@ -74,6 +79,11 @@ func sortedStringKeys(snapshot map[interface{}]interface{}) []string {
 
 // Stats calls cb with all the statistics registered on the default store.
 func Stats(cb func(name string, val float64)) { DefaultStore.Stats(cb) }
+
+// Running calls cb with lists of currently running tasks by name.
+func Running(cb func(name string, current []*TaskCtx)) {
+	DefaultStore.Running(cb)
+}
 
 // Datapoints calls cb with all the datasets registered on the default store.
 func Datapoints(reset bool, cb func(name string, data [][]float64, total uint64,

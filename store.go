@@ -43,6 +43,17 @@ func (s *MonitorStore) Stats(cb func(name string, val float64)) {
 	}
 }
 
+// Running collects lists of all running tasks by name
+func (s *MonitorStore) Running(cb func(name string, current []*TaskCtx)) {
+	snapshot := s.groups.Snapshot()
+	for _, name := range sortedStringKeys(snapshot) {
+		cache_val := snapshot[name]
+		if mon, ok := cache_val.(RunningTasksCollector); ok {
+			mon.Running(cb)
+		}
+	}
+}
+
 // Datapoints conforms to the DataCollection interface
 func (s *MonitorStore) Datapoints(reset bool, cb func(name string,
 	data [][]float64, total uint64, clipped bool, fraction float64)) {
@@ -83,3 +94,5 @@ func (s *MonitorStore) GetMonitorsNamed(group_name string) *MonitorGroup {
 func (s *MonitorStore) GetMonitors() *MonitorGroup {
 	return s.GetMonitorsNamed(PackageName())
 }
+
+var _ RunningTasksCollector = (*MonitorStore)(nil)

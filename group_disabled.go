@@ -22,6 +22,8 @@ import (
 
 func (g *MonitorGroup) Stats(cb func(name string, val float64)) {}
 
+func (g *MonitorGroup) Running(cb func(name string, current []*TaskCtx)) {}
+
 func (g *MonitorGroup) Datapoints(reset bool, cb func(name string,
 	data [][]float64, total uint64, clipped bool, fraction float64)) {
 }

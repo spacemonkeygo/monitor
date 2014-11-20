@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"strings"
 
-	"golang.org/x/net/context"
 	"github.com/spacemonkeygo/errors"
 	"github.com/spacemonkeygo/monitor/trace"
+	"golang.org/x/net/context"
 )
 
 // Stats conforms to the Monitor interface. Stats aggregates all statistics
@@ -38,6 +38,22 @@ func (g *MonitorGroup) Stats(cb func(name string, val float64)) {
 		mon.Stats(func(subname string, val float64) {
 			cb(fmt.Sprintf("%s.%s.%s", g.group_name, name, subname), val)
 		})
+	}
+}
+
+// Running collects lists of all running tasks by name
+func (g *MonitorGroup) Running(cb func(name string, current []*TaskCtx)) {
+	snapshot := g.monitors.Snapshot()
+	for _, name := range sortedStringKeys(snapshot) {
+		cache_val := snapshot[name]
+		mon, ok := cache_val.(*TaskMonitor)
+		if !ok {
+			continue
+		}
+		current := mon.Running()
+		if len(current) > 0 {
+			cb(fmt.Sprintf("%s.%s", g.group_name, name), current)
+		}
 	}
 }
 
@@ -276,3 +292,5 @@ func (self *MonitorGroup) TracedTask(ctx *context.Context) func(*error) {
 		}
 	}
 }
+
+var _ RunningTasksCollector = (*MonitorGroup)(nil)

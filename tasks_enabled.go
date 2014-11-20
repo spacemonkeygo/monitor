@@ -19,7 +19,6 @@ package monitor
 import (
 	"fmt"
 	"sort"
-	"time"
 
 	"github.com/spacemonkeygo/errors"
 	"github.com/spacemonkeygo/monotime"
@@ -29,12 +28,6 @@ const (
 	secondInMicroseconds     = 1000000
 	microsecondInNanoseconds = 1000
 )
-
-// TaskCtx keeps track of a task as it is running.
-type TaskCtx struct {
-	start   time.Duration
-	monitor *TaskMonitor
-}
 
 // Start is a helper method for watching a task in a less error-prone way.
 // Managing a task context yourself is tricky to get right - recover only works
@@ -48,14 +41,16 @@ func (t *TaskMonitor) Start() func(*error) {
 // NewContext creates a new context that is watching a live task. See Start
 // or MonitorGroup.Task
 func (t *TaskMonitor) NewContext() *TaskCtx {
+	c := &TaskCtx{start: monotime.Monotonic(), monitor: t}
 	t.mtx.Lock()
 	t.current += 1
 	t.total_started += 1
 	if t.current > t.highwater {
 		t.highwater = t.current
 	}
+	t.running[c] = true
 	t.mtx.Unlock()
-	return &TaskCtx{start: monotime.Monotonic(), monitor: t}
+	return c
 }
 
 // Stats conforms to the Monitor interface
@@ -121,7 +116,7 @@ func (t *TaskMonitor) Stats(cb func(name string, val float64)) {
 // Finish will re-panic any recovered panics (provided it wasn't a nil panic)
 // after bookkeeping.
 func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
-	duration_nanoseconds := int64(monotime.Monotonic() - c.start)
+	duration_nanoseconds := int64(c.ElapsedTime())
 	var error_name string
 	var err error
 	if err_ref != nil {
@@ -151,6 +146,7 @@ func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
 	c.monitor.mtx.Lock()
 	c.monitor.current -= 1
 	c.monitor.total_completed += 1
+	delete(c.monitor.running, c)
 	if err != nil {
 		c.monitor.errors[error_name] += 1
 		if rec != nil {
@@ -169,4 +165,18 @@ func (c *TaskCtx) Finish(err_ref *error, rec interface{}) {
 	if rec != nil {
 		panic(rec)
 	}
+}
+
+// Running returns a list of tasks that are currently running. Each TaskCtx
+// can tell how long it's been since the task was started, though keep in mind
+// that the task might finish between calling (*TaskMonitor).Running() and
+// (*TaskCtx).ElapsedTime()
+func (t *TaskMonitor) Running() (rv []*TaskCtx) {
+	t.mtx.Lock()
+	rv = make([]*TaskCtx, 0, len(t.running))
+	for task_ctx := range t.running {
+		rv = append(rv, task_ctx)
+	}
+	t.mtx.Unlock()
+	return rv
 }

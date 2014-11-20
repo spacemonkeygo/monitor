@@ -16,6 +16,9 @@ package monitor
 
 import (
 	"sync"
+	"time"
+
+	"github.com/spacemonkeygo/monotime"
 )
 
 // TaskMonitor is a type for keeping track of tasks. A TaskMonitor will keep
@@ -39,14 +42,26 @@ type TaskMonitor struct {
 	total_timing    *IntValueMonitor
 	errors          map[string]uint64
 	panics          uint64
+	running         map[*TaskCtx]bool
 }
 
 // NewTaskMonitor returns a new TaskMonitor. You probably want to create
 // a TaskMonitor using MonitorGroup.Task instead.
 func NewTaskMonitor() *TaskMonitor {
 	return &TaskMonitor{
-		errors:         make(map[string]uint64),
 		success_timing: NewIntValueMonitor(),
 		error_timing:   NewIntValueMonitor(),
-		total_timing:   NewIntValueMonitor()}
+		total_timing:   NewIntValueMonitor(),
+		errors:         make(map[string]uint64),
+		running:        make(map[*TaskCtx]bool)}
+}
+
+// TaskCtx keeps track of a task as it is running.
+type TaskCtx struct {
+	start   time.Duration
+	monitor *TaskMonitor
+}
+
+func (t TaskCtx) ElapsedTime() time.Duration {
+	return monotime.Monotonic() - t.start
 }
