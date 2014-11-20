@@ -1,6 +1,9 @@
 # monitor [![Build Status](https://api.travis-ci.org/spacemonkeygo/monitor.svg?branch=master)](https://travis-ci.org/spacemonkeygo/monitor)
 
 Please see http://godoc.org/github.com/spacemonkeygo/monitor for info
+on the generic statistics monitoring library and
+http://godoc.org/github.com/spacemonkeygo/monitor/trace for info on
+the Zipkin client library (https://twitter.github.io/zipkin/).
 
 ### License
 
