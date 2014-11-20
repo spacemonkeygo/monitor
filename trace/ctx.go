@@ -17,7 +17,7 @@ package trace
 import (
 	"fmt"
 
-	"code.google.com/p/go.net/context"
+	"golang.org/x/net/context"
 )
 
 type ctxKey int

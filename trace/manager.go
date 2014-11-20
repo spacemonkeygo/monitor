@@ -17,7 +17,7 @@ package trace
 import (
 	"sync"
 
-	"code.google.com/p/go.net/context"
+	"golang.org/x/net/context"
 	"github.com/spacemonkeygo/monitor/trace/gen-go/zipkin"
 )
 

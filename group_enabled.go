@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"strings"
 
-	"code.google.com/p/go.net/context"
+	"golang.org/x/net/context"
 	"github.com/spacemonkeygo/errors"
 	"github.com/spacemonkeygo/monitor/trace"
 )
