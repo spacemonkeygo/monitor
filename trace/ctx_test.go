@@ -15,7 +15,7 @@
 package trace_test
 
 import (
-	"code.google.com/p/go.net/context"
+	"golang.org/x/net/context"
 	"github.com/spacemonkeygo/monitor/trace"
 )
 

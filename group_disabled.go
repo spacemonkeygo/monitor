@@ -17,7 +17,7 @@
 package monitor
 
 import (
-	"code.google.com/p/go.net/context"
+	"golang.org/x/net/context"
 )
 
 func (g *MonitorGroup) Stats(cb func(name string, val float64)) {}
