@@ -76,5 +76,8 @@ monitor.Stats like so
 
 This package lets you easily instrument your code with all of these goodies and
 more!
+
+Make sure to check out the trace subpackage for the Zipkin client extension.
+http://godoc.org/github.com/spacemonkeygo/monitor/trace
 */
 package monitor
