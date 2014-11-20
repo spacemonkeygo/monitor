@@ -48,6 +48,22 @@ func (s *MonitorStore) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if strings.HasSuffix(req.URL.Path, "datapoints") {
+		s.Datapoints(false, func(key string, data [][]float64,
+			total uint64, clipped bool, fraction float64) {
+
+			fmt.Fprintf(w, "%s\t%d\t%v\t%f\n", key, total, clipped, fraction)
+			for idx, points := range data {
+				fmt.Fprintf(w, "\t%v", points)
+				if (idx+1)%6 == 0 {
+					fmt.Fprintln(w)
+				}
+			}
+			fmt.Fprintln(w)
+		})
+		return
+	}
+
 	s.Stats(func(name string, val float64) {
 		fmt.Fprintf(w, "%s\t%f\n", name, val)
 	})
