@@ -19,8 +19,8 @@ import (
 	"time"
 
 	"github.com/spacemonkeygo/errors"
-	"github.com/spacemonkeygo/monitor/trace/gen-go/zipkin"
 	"github.com/spacemonkeygo/monotime"
+	"gopkg.in/spacemonkeygo/monitor.v1/trace/gen-go/zipkin"
 )
 
 // Span represents a given task or request within a full trace.

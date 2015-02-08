@@ -34,7 +34,7 @@ of your callstacks.
 Full example
 
 See https://github.com/jtolds/go-zipkin-sample for a set of toy example
-programs that use this library, or 
+programs that use this library, or
 https://raw.githubusercontent.com/jtolds/go-zipkin-sample/master/screenshot.png
 for a screenshot of the Zipkin user interface after collecting a trace
 from the sample application.

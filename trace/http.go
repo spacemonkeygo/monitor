@@ -20,8 +20,8 @@ import (
 	"net/http"
 	"sync"
 
-	"golang.org/x/net/context"
 	"github.com/spacemonkeygo/errors"
+	"golang.org/x/net/context"
 )
 
 // client stuff -----

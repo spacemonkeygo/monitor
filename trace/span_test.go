@@ -15,7 +15,7 @@
 package trace_test
 
 import (
-	"github.com/spacemonkeygo/monitor/trace"
+	"gopkg.in/spacemonkeygo/monitor.v1/trace"
 )
 
 func ExampleSpan_Observe() {

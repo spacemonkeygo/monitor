@@ -16,7 +16,7 @@ package monitor
 
 import (
 	"github.com/spacemonkeygo/errors"
-	"github.com/spacemonkeygo/monitor/utils"
+	"gopkg.in/spacemonkeygo/monitor.v1/utils"
 )
 
 // MonitorStore is a collection of package-level MonitorGroups. There is

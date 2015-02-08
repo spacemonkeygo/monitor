@@ -18,7 +18,7 @@ import (
 	"sync"
 
 	"golang.org/x/net/context"
-	"github.com/spacemonkeygo/monitor/trace/gen-go/zipkin"
+	"gopkg.in/spacemonkeygo/monitor.v1/trace/gen-go/zipkin"
 )
 
 // TraceCollector is an interface dealing with completed Spans on a

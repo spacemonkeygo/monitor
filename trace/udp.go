@@ -18,7 +18,7 @@ import (
 	"net"
 
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"github.com/spacemonkeygo/monitor/trace/gen-go/zipkin"
+	"gopkg.in/spacemonkeygo/monitor.v1/trace/gen-go/zipkin"
 )
 
 const (

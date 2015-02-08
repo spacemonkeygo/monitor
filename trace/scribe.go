@@ -21,9 +21,9 @@ import (
 	"time"
 
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"github.com/spacemonkeygo/monitor/trace/gen-go/scribe"
-	"github.com/spacemonkeygo/monitor/trace/gen-go/zipkin"
 	"github.com/spacemonkeygo/spacelog"
+	"gopkg.in/spacemonkeygo/monitor.v1/trace/gen-go/scribe"
+	"gopkg.in/spacemonkeygo/monitor.v1/trace/gen-go/zipkin"
 )
 
 var (

@@ -21,8 +21,8 @@ import (
 	"strings"
 
 	"github.com/spacemonkeygo/errors"
-	"github.com/spacemonkeygo/monitor/trace"
 	"golang.org/x/net/context"
+	"gopkg.in/spacemonkeygo/monitor.v1/trace"
 )
 
 // Stats conforms to the Monitor interface. Stats aggregates all statistics
@@ -255,7 +255,7 @@ func (self *MonitorGroup) Chain(name string, other Monitor) {
 }
 
 // TracedTask creates a Task and also uses
-// github.com/spacemonkeygo/monitor/trace's Trace function to Trace the given
+// gopkg.in/spacemonkeygo/monitor.v1/trace's Trace function to Trace the given
 // function. Currently only uses the default tracing SpanManager
 func (self *MonitorGroup) TracedTask(ctx *context.Context) func(*error) {
 	caller_name := CallerName()

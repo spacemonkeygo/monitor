@@ -16,7 +16,7 @@ package trace_test
 
 import (
 	"golang.org/x/net/context"
-	"github.com/spacemonkeygo/monitor/trace"
+	"gopkg.in/spacemonkeygo/monitor.v1/trace"
 )
 
 func ExampleSpanManager_Trace() {

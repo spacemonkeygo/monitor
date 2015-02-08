@@ -15,7 +15,7 @@
 package monitor
 
 import (
-	"github.com/spacemonkeygo/monitor/utils"
+	"gopkg.in/spacemonkeygo/monitor.v1/utils"
 )
 
 // MonitorGroup is a collection of named Monitor interfaces and DataCollector

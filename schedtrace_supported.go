@@ -18,7 +18,7 @@
 package monitor
 
 import (
-	"github.com/spacemonkeygo/monitor/utils/sched"
+	"gopkg.in/spacemonkeygo/monitor.v1/utils/sched"
 )
 
 var (

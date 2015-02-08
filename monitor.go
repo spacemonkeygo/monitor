@@ -17,8 +17,8 @@ package monitor
 import (
 	"sort"
 
-	"github.com/spacemonkeygo/monitor/trace"
 	"github.com/spacemonkeygo/spacelog"
+	"gopkg.in/spacemonkeygo/monitor.v1/trace"
 )
 
 var (

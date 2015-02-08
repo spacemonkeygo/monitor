@@ -17,7 +17,7 @@ package monitor
 import (
 	"sync"
 
-	"github.com/spacemonkeygo/monitor/trace"
+	"gopkg.in/spacemonkeygo/monitor.v1/trace"
 )
 
 // DatapointCollector collects a set of datapoints
