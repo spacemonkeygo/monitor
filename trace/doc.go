@@ -130,4 +130,4 @@ Other
 See https://github.com/itszero/docker-zipkin for easy Zipkin setup.
 
 */
-package trace
+package trace // import "gopkg.in/spacemonkeygo/monitor.v1/trace"

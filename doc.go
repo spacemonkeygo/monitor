@@ -80,4 +80,4 @@ more!
 Make sure to check out the trace subpackage for the Zipkin client extension.
 http://godoc.org/gopkg.in/spacemonkeygo/monitor.v1/trace
 */
-package monitor
+package monitor // import "gopkg.in/spacemonkeygo/monitor.v1"
