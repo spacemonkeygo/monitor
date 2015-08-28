@@ -54,15 +54,14 @@ func RequestFromHeader(header HeaderGetter) (rv Request) {
 		rv.ParentId = &parent_id
 	}
 	sampled, err := strconv.ParseBool(header.Get("X-B3-Sampled"))
-	if err != nil {
-		sampled = true
+	if err == nil {
+		rv.Sampled = &sampled
 	}
 	rv.Sampled = &sampled
 	flags, err := fromHeader(header.Get("X-B3-Flags"))
-	if err != nil {
-		flags = 0
+	if err == nil {
+		rv.Flags = &flags
 	}
-	rv.Flags = &flags
 	return rv
 }
 
