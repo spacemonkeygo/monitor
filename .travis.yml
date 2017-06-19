@@ -2,7 +2,7 @@ language: go
 
 go:
   - 1.7
-  - stable
+  - 1.8
   - tip
 
 script: go test -v . ./trace/... ./utils
